@@ -10,7 +10,8 @@ Scheme's tiny function
 (val association-list value)
 `=> key`
 
-(vector->alist vector)		
+(vector->alist vector)	
+
 `#(value1 value2 value3 ...)                    =>     ((0 . value1)(1 . value2)(2 . value3) ...)`	
 		
 (vector->array list)	
