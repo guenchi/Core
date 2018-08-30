@@ -1,5 +1,5 @@
 # Core
-Scheme's tiny function
+Scheme's commonly used small functions
 
 
 ***(core alist)***
