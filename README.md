@@ -1,4 +1,4 @@
-# core
+# Core
 Scheme's tiny function
 
 
