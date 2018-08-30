@@ -2,8 +2,12 @@
 Scheme's tiny function
 
 
-***(core alist)***		
-		
+***(core alist)***
+
+`(ref association-list key)`
+
+`(val association-list value)`
+
  `(vector->alist vector)`		
 		
 		
