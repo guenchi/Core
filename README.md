@@ -4,7 +4,7 @@ Scheme's commonly used small functions
 
 ### (core alist)
 
-***(ref association-list key)***
+(ref association-list key)
 
 `=> value`
 
@@ -21,12 +21,12 @@ Scheme's commonly used small functions
 `((0 . value1)(1 . value2)(2 . value3) ...)     =>     #(value1 value2 value3 ...)`
 
 
-# (core string)
+### (core string)
 
 (split string char)   
 
 `=> list`
 
-***(core exception)***
+### (core exception)
 
 (try procedure (catch procedure))
