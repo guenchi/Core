@@ -5,9 +5,11 @@ Scheme's commonly used small functions
 ***(core alist)***
 
 (ref association-list key)
+
 `=> value`
 
 (val association-list value)
+
 `=> key`
 
 (vector->alist vector)	
@@ -22,6 +24,7 @@ Scheme's commonly used small functions
 ***(core string)***
 
 (split string char)   
+
 `=> list`
 
 ***(core exception)***
