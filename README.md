@@ -14,7 +14,7 @@ Scheme's tiny function
 
 `#(value1 value2 value3 ...)                    =>     ((0 . value1)(1 . value2)(2 . value3) ...)`	
 		
-(vector->array list)	
+(vector->array association-list)	
 		
 `((0 . value1)(1 . value2)(2 . value3) ...)     =>     #(value1 value2 value3 ...)`
 
