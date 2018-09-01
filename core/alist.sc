@@ -57,21 +57,40 @@
     
     (define alter!
         (lambda (lst x y)
-            (if (not (null? (car lst)))
+            (if (null? (car lst))
+                #f
                 (if (equal? (caar lst) x)
-                    (set-car! lst (cons x y))
-                    (if (not (null? (cdr lst)))
+                    (begin
+                        (set-car! lst (cons x y))
+                        #t)
+                    (if (null? (cdr lst))
+                        #f
                         (alter! (cdr lst) x y))))))
               
 
 
     (define drop!
         (lambda (lst x)
-            (if (not (null? (car lst)))
+            (if (null? (car lst))
+                #f
                 (if (equal? (caar lst) x)
-                    (set-car! lst (cdr lst))
-                    (if (not (null? (cdr lst)))
-                        (drop! (cdr lst) x y))))))
+                    (if (null? (cdr lst))
+                        (begin
+                            (set-car! lst '())
+                            #t)
+                        (begin
+                            (set-car! lst (cadr lst))
+                            (set-cdr! lst (cddr lst))
+                            #t))
+                    (if (null? (cdr lst))
+                        #f
+                        (if (null? (cddr lst))
+                            (if (equal? (caadr lst) x)
+                                (begin 
+                                    (set-cdr! lst '())
+                                    #t)
+                                #f)
+                            (drop! (cdr lst) x)))))))
 
 
 
