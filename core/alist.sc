@@ -66,6 +66,14 @@
                             (f (car lst) (if b '(()) (reverse k))))
                         (l (cdr lst) (cons (car lst) k) #f))))))
  
+ 
+    (define eject
+        (lambda (lst)
+                (lambda (f)
+                    (if (null? (cdr lst))
+                        (f (car lst) '(()))
+                        (f (car lst)(cdr lst)))))) 
+ 
 
     
     (define alter!
