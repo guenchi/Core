@@ -97,9 +97,13 @@
     (define push!
 	    (lambda (lst x y)
 		    (if (null? (cdr lst))
-			    (if (null? (car lst))
-				    (set-car! lst (cons x y))
-				    (set-cdr! lst (cons (cons x y) '())))
+                (if (null? (car lst))
+                    (begin
+                        (set-car! lst (cons x y))
+                        #t)
+                    (begin
+                        (set-cdr! lst (cons (cons x y) '()))
+                        #t))
                 (push! (cdr lst) x y))))
 
 
@@ -122,7 +126,8 @@
         (lambda (lst x y)
             (if (not (equal? (cdr lst) '()))
                 (set-cdr! lst (cons (car lst) (cdr lst))))
-            (set-car! lst (cons x y))))            
+            (set-car! lst (cons x y))
+            #t))               
 
                             
 
