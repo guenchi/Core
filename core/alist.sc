@@ -33,7 +33,7 @@
                     (caar str)
                     (val (cdr str) x)))))
  
-     (define alter
+    (define alter
         (lambda (lst x y)
             (if (null? (car lst))
                 lst
@@ -53,6 +53,19 @@
                     (if (null? (cdr lst))
                         lst
                         (cons (car lst) (drop (cdr lst) x))))))) 
+ 
+ 
+    (define pop
+        (lambda (lst)
+            (if (null? (car lst))
+                (lambda (f)
+                    (f '() lst))
+                (let l ((lst lst)(k '())(b #t))
+                    (if (null? (cdr lst))
+                        (lambda (f)
+                            (f (car lst) (if b '(()) (reverse k))))
+                        (l (cdr lst) (cons (car lst) k) #f))))))
+ 
 
     
     (define alter!
