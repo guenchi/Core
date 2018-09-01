@@ -49,10 +49,10 @@
             (if (null? (car lst))
                 lst
                 (if (equal? (caar lst) x)
-                    (list (cdr lst))
+                    (cdr lst)
                     (if (null? (cdr lst))
                         lst
-                        (cons (car lst) (alter (cdr lst) x y)))))))  
+                        (cons (car lst) (drop (cdr lst) x))))))) 
 
     
     (define alter!
