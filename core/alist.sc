@@ -66,6 +66,12 @@
                             (f (car lst) (if b '(()) (reverse k))))
                         (l (cdr lst) (cons (car lst) k) #f))))))
  
+    (define insert
+        (lambda (lst x y)
+            (if (null? (car lst))
+                (list (cons x y))
+                (cons (cons x y) lst))))
+ 
  
     (define eject
         (lambda (lst)
