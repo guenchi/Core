@@ -3,7 +3,11 @@
         ref
         val
         alter
-        drop
+     	drop
+        push
+        pop
+        insert
+        eject
         alter!
         drop!
         push!
@@ -53,6 +57,15 @@
                     (if (null? (cdr lst))
                         lst
                         (cons (car lst) (drop (cdr lst) x))))))) 
+ 
+ 
+    (define push
+        (lambda (lst x y)
+            (if (null? (car lst))
+                (list (cons x y))
+                (if (null? (cdr lst))
+                    (list (car lst) (cons x y))
+                    (cons (car lst) (push (cdr lst) x y))))))
  
  
     (define pop
