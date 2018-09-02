@@ -181,6 +181,15 @@
 					    (set-cdr! str (cddr str))))
 			    x)))
 
+ 
+    (define alist->vector
+        (lambda (x)
+            (list->vector         
+                (let l ((x x)(n 0))
+                    (cons (cdar x)
+                        (if (null? (cdr x))
+                            '()
+                            (l (cdr x) (+ n 1)))))))) 
 
     (define vector->alist
         (lambda (x)
@@ -191,13 +200,5 @@
                         (l (cdr x) (+ n 1)))))))
 
 
-    (define alist->vector
-        (lambda (x)
-            (list->vector         
-                (let l ((x x)(n 0))
-                    (cons (cdar x)
-                        (if (null? (cdr x))
-                            '()
-                            (l (cdr x) (+ n 1))))))))
 
 )
