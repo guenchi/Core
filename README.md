@@ -4,7 +4,7 @@ Scheme's commonly used small functions
 
 ### (core alist)
 
-(*ref* association-list key)
+(**ref** association-list key)
 
 `=> value`
 
