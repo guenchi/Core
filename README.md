@@ -60,13 +60,13 @@ Scheme's commonly used small functions
 
 `=> pair, take the leftest pair, and delete it in the old association-list`
 
-(**vector->alist** vector)	
-
-`#(value1 value2 value3 ...)                    =>     ((0 . value1)(1 . value2)(2 . value3) ...)`	
-		
 (**alist->vector** association-list)	
 		
 `((0 . value1)(1 . value2)(2 . value3) ...)     =>     #(value1 value2 value3 ...)`
+
+(**vector->alist** vector)	
+
+`#(value1 value2 value3 ...)                    =>     ((0 . value1)(1 . value2)(2 . value3) ...)`	
 
 
 ### (core string)
