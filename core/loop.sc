@@ -97,16 +97,6 @@
                 (let ((var pos))
                   block ...
                   (loop (+ pos 1)))))
-
-
-
-
-
-
-
-
-
-
              
              ((_ var <- (in-list val break-when condition) block ...)
               (let loop ((lst val))
