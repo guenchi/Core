@@ -62,41 +62,41 @@
            (syntax-rules (in-list in-vector in-alist <- in-string
                                   break-when
                                   )
-             [(_ var <- (in-list val) block ...)
+             ((_ var <- (in-list val) block ...)
               (let loop ((lst val))
                 (if (null? lst)
                     (void)
-                    (let ([var (car lst)])
+                    (let ((var (car lst)))
                       block ...
-                      (loop (cdr lst)))))]
-             [(_ var <- (in-vector val) block ...)
+                      (loop (cdr lst))))))
+             ((_ var <- (in-vector val) block ...)
               (let loop ((pos 0))
                 (if (>= pos (vector-length val))
                     (void)
-                    (let ([var (vector-ref val pos)])
+                    (let ((var (vector-ref val pos)))
                       block ...
-                      (loop (+ pos 1)))))]
-             [(_ (key val) <- (in-alist alist) block ...)
+                      (loop (+ pos 1))))))
+             ((_ (key val) <- (in-alist alist) block ...)
               (let loop ((pos alist))
                 (if (null? pos)
                     (void)
-                    (let ([key (car (car pos))]
-                          [val (cdr (car pos))]
+                    (let ((key (car (car pos)))
+                          (val (cdr (car pos)))
                           )
                       block ...
-                      (loop (cdr pos)))))]
-             [(_ var <- (in-string val) block ...)
+                      (loop (cdr pos))))))
+             ((_ var <- (in-string val) block ...)
               (let loop ((pos 0))
                 (if (>= pos (string-length val))
                     (void)
-                    (let ([var (string-ref val pos)])
+                    (let ((var (string-ref val pos)))
                       block ...
-                      (loop (+ pos 1)))))]
-             [(_ var <- (in-naturals) block ...)
+                      (loop (+ pos 1))))))
+             ((_ var <- (in-naturals) block ...)
               (let loop ((pos 0))
-                (let ([var pos])
+                (let ((var pos))
                   block ...
-                  (loop (+ pos 1))))]
+                  (loop (+ pos 1)))))
 
 
 
@@ -108,124 +108,124 @@
 
 
              
-             [(_ var <- (in-list val break-when condition) block ...)
+             ((_ var <- (in-list val break-when condition) block ...)
               (let loop ((lst val))
                 (if (null? lst)
                     (void)
-                    (let ([var (car lst)])
+                    (let ((var (car lst)))
                       (when (not condition) block ...
-                        (loop (cdr lst))))))]
-             [(_ var <- (in-vector val break-when condition) block ...)
+                        (loop (cdr lst)))))))
+             ((_ var <- (in-vector val break-when condition) block ...)
               (let loop ((pos 0))
                 (if (>= pos (vector-length val))
                     (void)
-                    (let ([var (vector-ref val pos)])
+                    (let ((var (vector-ref val pos)))
                       (when (not condition)  block ...
-                        (loop (+ pos 1))))))]
-             [(_ (key val) <- (in-alist alist break-when condition) block ...)
+                        (loop (+ pos 1)))))))
+             ((_ (key val) <- (in-alist alist break-when condition) block ...)
               (let loop ((pos alist))
                 (if (null? pos)
                     (void)
-                    (let ([key (car (car pos))]
-                          [val (cdr (car pos))]
+                    (let ((key (car (car pos)))
+                          (val (cdr (car pos)))
                           )
                       (when (not condition)  block ...
-                        (loop (cdr pos))))))]
-             [(_ var <- (in-string val break-when condition) block ...)
+                        (loop (cdr pos)))))))
+             ((_ var <- (in-string val break-when condition) block ...)
               (let loop ((pos 0))
                 (if (>= pos (string-length val))
                     (void)
-                    (let ([var (string-ref val pos)])
+                    (let ((var (string-ref val pos)))
                       (when (not condition)  block ...
-                        (loop (+ pos 1))))))]
-             [(_ var <- (in-naturals break-when condition) block ...)
+                        (loop (+ pos 1)))))))
+             ((_ var <- (in-naturals break-when condition) block ...)
               (let loop ((pos 0))
-                (let ([var pos])
+                (let ((var pos))
                   (when (not condition) block ...
-                    (loop (+ pos 1)))))]
+                    (loop (+ pos 1))))))
 
 
              
-             [(_ var <- (in-range range-args ... break-when condition) block ...)
-              (for var <- (in-list (range range-args ...) break-when condition) block ...)]
-             [(_ var <- (in-range range-args ...) block ...)
-              (for var <- (in-list (range range-args ...)) block ...)]
-             [(_ . args) (error "for : invalid syntax.")]
+             ((_ var <- (in-range range-args ... break-when condition) block ...)
+              (for var <- (in-list (range range-args ...) break-when condition) block ...))
+             ((_ var <- (in-range range-args ...) block ...)
+              (for var <- (in-list (range range-args ...)) block ...))
+             ((_ . args) (error "for : invalid syntax."))
              ))
 
          (define-syntax for/sum
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
-              (let ([acc 0])
+             ((_ matcher <- val do ...)
+              (let ((acc 0))
                 (for matcher <- val
                   (set! acc (+ acc (let ()
                                      do ...))))
-                acc)]
+                acc))
              ))
 
          (define-syntax for/product
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
-              (let ([acc 1])
+             ((_ matcher <- val do ...)
+              (let ((acc 1))
                 (for matcher <- val
                   (set! acc (* acc (let ()
                                      do ...))))
-                acc)]
+                acc))
              ))
 
 
          (define-syntax for/list
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
-              (let ([acc '()])
+             ((_ matcher <- val do ...)
+              (let ((acc '()))
                 (for matcher <- val
                   (set! acc (cons (let () do ...) acc)))
-                (reverse acc))]))
+                (reverse acc)))))
 
          (define-syntax for/vector
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
-              (list->vector (for/list matcher <- val do ...))]))
+             ((_ matcher <- val do ...)
+              (list->vector (for/list matcher <- val do ...)))))
 
          (define-syntax for/string
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
-              (list->string (for/list matcher <- val do ...))]))
+             ((_ matcher <- val do ...)
+              (list->string (for/list matcher <- val do ...)))))
 
          (define-syntax for/max
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
-              (apply max (for/list matcher <- val do ...))]))
+             ((_ matcher <- val do ...)
+              (apply max (for/list matcher <- val do ...)))))
 
          (define-syntax for/min
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
-              (apply min (for/list matcher <- val do ...))]))
+             ((_ matcher <- val do ...)
+              (apply min (for/list matcher <- val do ...)))))
 
          (define-syntax for/and
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
+             ((_ matcher <- val do ...)
               (call/cc (lambda (exit)
                          (for matcher <- val
                            (if (let () do ...)
                                (void)
                                (exit #f)))
-                         #t))]))
+                         #t)))))
 
          (define-syntax for/or
            (syntax-rules (<-)
-             [(_ matcher <- val do ...)
+             ((_ matcher <- val do ...)
               (call/cc (lambda (exit)
                          (for matcher <- val
                            (if (let () do ...)
                                (exit #t)
                                (void)
                                ))
-                         #f))]))
+                         #f)))))
          (define range
            (case-lambda
-             [(s e) (if (>= s e) '()
-                        (cons s (range (+ s 1) e)))]
-             [(e) (range 0 e)]))
+             ((s e) (if (>= s e) '()
+                        (cons s (range (+ s 1) e))))
+             ((e) (range 0 e))))
                  
          )
