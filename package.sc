@@ -4,7 +4,7 @@
     ("keywords"
         ("scheme" "core"))
     ("author" 
-        ("guenchi"))
+        ("guenchi" "syntacticlosure" "chclock"))
     ("private" . #f)
     ("scripts")
     ("dependencies")
