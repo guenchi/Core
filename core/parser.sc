@@ -1,6 +1,6 @@
 ;;;;library for Simple Parser Combinator
 
-(library (rachez parser)
+(library (core parser)
          (export satisfy/p equal/p parser digit/p alpha/p parse-string
                  eof/p many/p or/p some/p integer/p
                  )
