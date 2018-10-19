@@ -1,4 +1,4 @@
-
+ 
 ;  MIT License
 
 ;  Copyright syntacticlosure (c) 2018 
@@ -26,7 +26,8 @@
 
 
 (library (core generic)
-         (export set-generic! map-generic first second third fourth)
+         (export set-generic! map-generic first second third fourth
+                 fifth sixth seventh eigth ninth tenth)
          (import (chezscheme))
 
          (define-syntax set-generic!
@@ -61,7 +62,7 @@
                 [else (error 'set-generic! "unknown datatype")])
               ]
              [(_ . any-other-forms) (set! . any-other-forms)]
-               ))
+             ))
 
          (define (map-generic f list-or-vector)
            (cond
@@ -74,10 +75,10 @@
                  [(= index 0) (set-car! var value)]
                  [else (list-set! (cdr var) (- index 1) value)]))
          (define (first x)
-          (cond
-            [(list? x) (car x)]
-            [(vector? x) (vector-ref x 0)]
-            [else (error 'first "unknown datatype")]))
+           (cond
+             [(list? x) (car x)]
+             [(vector? x) (vector-ref x 0)]
+             [else (error 'first "unknown datatype")]))
          (define (second x)
            (cond
              [(list? x) (cadr x)]
@@ -93,6 +94,24 @@
              [(list? x) (cadddr x)]
              [(vector? x) (vector-ref x 3)]
              [else (error 'fourth "unknown datatype")]))
+         (define-syntax make-index-identifier
+           (lambda (stx)
+             (syntax-case stx ()
+               [(_ index name)
+                #`(begin (define (name x)
+                           (cond
+                             [(list? x) (list-ref x index)]
+                             [(vector? x) (vector-ref x index)]
+                             [else (error 'fourth "unknown datatype")])))])))
+
+         (make-index-identifier 4 fifth)
+         (make-index-identifier 5 sixth)
+         (make-index-identifier 6 seventh)
+         (make-index-identifier 7 eigth)
+         (make-index-identifier 8 ninth)
+         (make-index-identifier 9 tenth)
 
          
-           )
+
+         
+         )

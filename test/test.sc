@@ -1,5 +1,5 @@
-(import (rachez list) (chezscheme)
-        (rachez for))
+(import (core list) (chezscheme)
+        (core for))
 (display (build-list 3 (lambda (x) x)))
 (display (check-duplicates '(1 2 3)))
 (display (check-duplicates '(1 2 3 1)))

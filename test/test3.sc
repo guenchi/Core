@@ -1,4 +1,4 @@
-(import (chezscheme) (rachez string))
+(import (chezscheme) (core string))
 (display (string-prefix? "hello world" ""))
 (display (string-prefix? "hello world" "hell"))
 (display (string-prefix? "hello world" "helln"))
