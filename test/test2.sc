@@ -1,4 +1,4 @@
-(import (chezscheme) (rachez for) (rachez list))
+(import (chezscheme) (core for) (core list))
 (display (for/sum i <-
            (in-list (range 10000) break-when (not (<= i 100)))
            i))
