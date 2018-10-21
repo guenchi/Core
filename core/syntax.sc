@@ -1,4 +1,4 @@
-(library (core syntax-helper)
+(library (core syntax)
          (export define-syntax-rule ~> ~>> -> and-let*)
          (import (chezscheme))
 
