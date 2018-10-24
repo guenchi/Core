@@ -32,7 +32,10 @@
          (import (chezscheme))
 
          (define-syntax set-generic!
-           (syntax-rules (car cdr vector-ref list-ref first second third fourth)
+           (syntax-rules (car cdr vector-ref list-ref first second third fourth if)
+             [(_ (if condition var1 var2) value)
+              (if condition (set-generic! var1 value)
+                  (set-generic! var2 value))]
              [(_ (car var) value)
               (set-car! var value)]
              [(_ (cdr var) value)
@@ -130,5 +133,5 @@
 
          
          )
-
 (import (core generic))
+
