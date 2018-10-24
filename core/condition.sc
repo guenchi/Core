@@ -15,14 +15,9 @@
           )
          (import
           (scheme)
+          (only (core syntax) define-syntax-rule)
           )
 
-         (define-syntax define-syntax-rule
-           (syntax-rules ()
-             [(_ (macro-name . patterns) form)
-              (define-syntax macro-name
-                (syntax-rules ()
-                  [(_ . patterns) form]))]))
          
          (define-syntax-rule (or/=? x e ...) (or (= x e) ...))
          
