@@ -32,40 +32,40 @@
          (import (chezscheme))
 
          (define-syntax set-generic!
-           (syntax-rules (car cdr vector-ref list-ref first second third fourth if)
+           (lambda (stx)
+           (syntax-case stx (car cdr vector-ref list-ref first second third fourth if)
              [(_ (if condition var1 var2) value)
-              (if condition (set-generic! var1 value)
+              #'(if condition (set-generic! var1 value)
                   (set-generic! var2 value))]
-             [(_ (car var) value)
-              (set-car! var value)]
-             [(_ (cdr var) value)
-              (set-cdr! var value)]
-             [(_ (vector-ref var index) value)
-              (vector-set! var index value)]
-             [(_ (list-ref var index) value)
-              (list-set! var index value)]
-             [(_ (first var) value)
-              (cond
+             [(_ (car var) value) (identifier? #'var)
+              #'(set-car! var value)]
+             [(_ (cdr var) value) (identifier? #'var)
+              #'(set-cdr! var value)]
+             [(_ (vector-ref var index) value) (identifier? #'var)
+              #'(vector-set! var index value)]
+             [(_ (list-ref var index) value) (identifier? #'var)
+              #'(list-set! var index value)]
+             [(_ (first var) value) (identifier? #'var)
+              #'(cond
                 [(list? var) (set-car! var value)]
                 [(vector? var) (vector-set! var 0 value)]
                 [else (error 'set-generic! "unknown datatype")])]
-             [(_ (second var) value)
-              (cond
+             [(_ (second var) value) (identifier? #'var)
+              #'(cond
                 [(list? var) (list-set! var 1 value)]
                 [(vector? var) (vector-set! var 1 value)]
                 [else (error 'set-generic! "unknown datatype")])]
-             [(_ (third var) value)
-              (cond
+             [(_ (third var) value) (identifier? #'var)
+              #'(cond
                 [(list? var) (list-set! var 2 value)]
                 [(vector? var) (vector-set! var 2 value)]
                 [else (error 'set-generic! "unknown datatype")])]
-             [(_ (fourth var) value)
-              (cond
+             [(_ (fourth var) value) (identifier? #'var)
+              #'(cond
                 [(list? var) (list-set! var 3 value)]
                 [(vector? var) (vector-set! var 3 value)]
-                [else (error 'set-generic! "unknown datatype")])
-              ]
-             [(_ . any-other-forms) (set! . any-other-forms)]
+                [else (error 'set-generic! "unknown datatype")])]
+             [(_ . any-other-forms) #'(set! . any-other-forms)]
              ))
 
 
