@@ -120,3 +120,7 @@ Scheme's commonly used small functions
 (**string-find** str to-find)
 
 `=> list of pairs (positions of to-find in the string str)`
+
+(**string-replace** str from to)
+
+`=> string that froms are replaced by to`
