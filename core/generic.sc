@@ -27,7 +27,8 @@
 
 (library (core generic)
          (export set-generic! map-generic first second third fourth
-                 fifth sixth seventh eigth ninth tenth)
+                 fifth sixth seventh eigth ninth tenth push
+                 )
          (import (chezscheme))
 
          (define-syntax set-generic!
@@ -63,6 +64,7 @@
               ]
              [(_ . any-other-forms) (set! . any-other-forms)]
              ))
+
 
          (define (map-generic f list-or-vector)
            (cond
@@ -111,7 +113,22 @@
          (make-index-identifier 8 ninth)
          (make-index-identifier 9 tenth)
 
-         
+         (define (push container value)
+           (cond
+             [(list? container) (cons value container)]
+             [(vector? container) (let* ([l (vector-length container)]
+                                         [new (make-vector (+ l 1))])
+                                    (vector-set! new 0 value)
+                                    (let loop ([s 1])
+                                      (if (>= s (+ l 1))
+                                          (void)
+                                          (begin (vector-set! new s (vector-ref container (- s 1)))
+                                                 (loop (+ s 1)))))
+                                    new)]
+             [else (error 'push "unknown datatype")]
+              ))
 
          
          )
+
+(import (core generic))
