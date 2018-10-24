@@ -19,11 +19,6 @@
              [(_ init) init]
              [(_ init (f args ...) r ...) (~>> (f args ... init) r ...)]))
 
-         (define-syntax ->
-           (syntax-rules ()
-             [(_ init) init]
-             [(_ init f r ...) (-> (f init) r ...)]))
-
          (define-syntax and-let*
            (syntax-rules ()
              [(_ () body ...)
