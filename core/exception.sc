@@ -1,10 +1,10 @@
 (library (core exception)
     (export
-        try)
+        try catch)
     (import
         (scheme))
 
-
+(define-syntax catch (syntax-rules ()))
 (define-syntax try 
     (syntax-rules (catch) 
         ((_ body (catch catcher)) 
