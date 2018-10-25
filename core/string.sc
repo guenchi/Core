@@ -37,22 +37,15 @@
     (import
         (scheme))
 
-    (define split
-        (lambda (s c)
-            (letrec* ((len (string-length s))
-                (walk (lambda (str begin end rst)
-                        (cond 
-                            ((>= begin len) rst)
-                            ((or (= end len) (char=? (string-ref str end) c))
-                                (walk 
-                                    str 
-                                    (+ end 1)
-                                    (+ end 1)
-                                    (if (= begin end) 
-                                        rst
-                                        (cons (substring str begin end) rst))))
-                            (else (walk str begin (+ end 1) rst))))))
-            (reverse (walk s 0 0 '())))))
+(define split
+    (lambda (s c)
+        (define x (string-length s))
+        (let l ((res '())(x x)(y (- x 1)))
+            (if (= y -1)
+                (cons (substring s 0 x) res)
+                (if (char=? (string-ref s y) c)
+                    (l (cons (substring s (add1 y) x) res) y (- y 1))
+                    (l res x (- y 1)))))))
  
 
          (define (string-prefix? str pre)
