@@ -40,12 +40,12 @@
 (define split
     (lambda (s c)
         (define x (string-length s))
-        (let l ((res '())(x x)(y (- x 1)))
+        (let l ((x x)(y (- x 1))(r '()))
             (if (= y -1)
-                (cons (substring s 0 x) res)
+                (cons (substring s 0 x) r)
                 (if (char=? (string-ref s y) c)
-                    (l (cons (substring s (add1 y) x) res) y (- y 1))
-                    (l res x (- y 1)))))))
+                    (l y (- y 1)(cons (substring s (+ y 1) x) r))
+                    (l x (- y 1) r))))))
  
 
          (define (string-prefix? str pre)
