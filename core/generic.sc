@@ -27,46 +27,42 @@
 
 (library (core generic)
          (export set-generic! map-generic first second third fourth
-                 fifth sixth seventh eigth ninth tenth push
+                 fifth sixth seventh eigth ninth tenth eleventh twelfth
+                 push
                  )
          (import (chezscheme))
-
+         (meta define index-identifiers '())
+         (meta define (assoc/free-identifier=? x lst)
+               (if (null? lst)
+                   #f
+                   (if (free-identifier=? x (caar lst))
+                       (car lst)
+                       (assoc/free-identifier=? x (cdr lst)))))
          (define-syntax set-generic!
            (lambda (stx)
-           (syntax-case stx (car cdr vector-ref list-ref first second third fourth if)
-             [(_ (if condition var1 var2) value)
-              #'(if condition (set-generic! var1 value)
-                  (set-generic! var2 value))]
-             [(_ (car var) value) (identifier? #'var)
-              #'(set-car! var value)]
-             [(_ (cdr var) value) (identifier? #'var)
-              #'(set-cdr! var value)]
-             [(_ (vector-ref var index) value) (identifier? #'var)
-              #'(vector-set! var index value)]
-             [(_ (list-ref var index) value) (identifier? #'var)
-              #'(list-set! var index value)]
-             [(_ (first var) value) (identifier? #'var)
-              #'(cond
-                [(list? var) (set-car! var value)]
-                [(vector? var) (vector-set! var 0 value)]
-                [else (error 'set-generic! "unknown datatype")])]
-             [(_ (second var) value) (identifier? #'var)
-              #'(cond
-                [(list? var) (list-set! var 1 value)]
-                [(vector? var) (vector-set! var 1 value)]
-                [else (error 'set-generic! "unknown datatype")])]
-             [(_ (third var) value) (identifier? #'var)
-              #'(cond
-                [(list? var) (list-set! var 2 value)]
-                [(vector? var) (vector-set! var 2 value)]
-                [else (error 'set-generic! "unknown datatype")])]
-             [(_ (fourth var) value) (identifier? #'var)
-              #'(cond
-                [(list? var) (list-set! var 3 value)]
-                [(vector? var) (vector-set! var 3 value)]
-                [else (error 'set-generic! "unknown datatype")])]
-             [(_ . any-other-forms) #'(set! . any-other-forms)]
-             ))
+             (syntax-case stx (car cdr vector-ref list-ref first second third fourth if)
+               [(_ (if condition var1 var2) value)
+                #'(if condition (set-generic! var1 value)
+                      (set-generic! var2 value))]
+               [(_ (car var) value)
+                #'(set-car! var value)]
+               [(_ (cdr var) value)
+                #'(set-cdr! var value)]
+               [(_ (vector-ref var index) value)
+                #'(vector-set! var index value)]
+               [(_ (list-ref var index) value)
+                #'(list-set! var index value)]
+               [(_ (maybe-accessor var) value)
+                (assoc/free-identifier=? #'maybe-accessor index-identifiers)
+                (let ([idx
+                       (cdr (assoc/free-identifier=? #'maybe-accessor index-identifiers))])
+                  #`(let ([real-var var])
+                      (cond
+                        [(list? real-var) (list-set! var #,idx value)]
+                        [(vector? var) (vector-set! var #,idx value)]
+                        [else (error 'set-generic! "unknown datatype")])))]
+               [(_ . any-other-forms) #'(set! . any-other-forms)]
+               )))
 
 
          (define (map-generic f list-or-vector)
@@ -79,42 +75,29 @@
            (cond [(< index 0) (error 'set-generic "invalid index!")]
                  [(= index 0) (set-car! var value)]
                  [else (list-set! (cdr var) (- index 1) value)]))
-         (define (first x)
-           (cond
-             [(list? x) (car x)]
-             [(vector? x) (vector-ref x 0)]
-             [else (error 'first "unknown datatype")]))
-         (define (second x)
-           (cond
-             [(list? x) (cadr x)]
-             [(vector? x) (vector-ref x 1)]
-             [else (error 'second "unknown datatype")]))
-         (define (third x)
-           (cond
-             [(list? x) (caddr x)]
-             [(vector? x) (vector-ref x 2)]
-             [else (error 'third "unknown datatype")]))
-         (define (fourth x)
-           (cond
-             [(list? x) (cadddr x)]
-             [(vector? x) (vector-ref x 3)]
-             [else (error 'fourth "unknown datatype")]))
+
          (define-syntax make-index-identifier
            (lambda (stx)
              (syntax-case stx ()
                [(_ index name)
+                (set! index-identifiers (cons (cons #'name #'index) index-identifiers))
                 #`(begin (define (name x)
                            (cond
                              [(list? x) (list-ref x index)]
                              [(vector? x) (vector-ref x index)]
                              [else (error 'fourth "unknown datatype")])))])))
-
+         (make-index-identifier 0 first)
+         (make-index-identifier 1 second)
+         (make-index-identifier 2 third)
+         (make-index-identifier 3 fourth)
          (make-index-identifier 4 fifth)
          (make-index-identifier 5 sixth)
          (make-index-identifier 6 seventh)
          (make-index-identifier 7 eigth)
          (make-index-identifier 8 ninth)
          (make-index-identifier 9 tenth)
+         (make-index-identifier 10 eleventh)
+         (make-index-identifier 11 twelfth)
 
          (define (push container value)
            (cond
@@ -129,9 +112,10 @@
                                                  (loop (+ s 1)))))
                                     new)]
              [else (error 'push "unknown datatype")]
-              ))
+             ))
 
          
          )
 (import (core generic))
+;;for test convenience
 
