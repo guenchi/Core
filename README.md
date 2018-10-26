@@ -6,11 +6,11 @@ Scheme's commonly used small functions
 
 (**ref** association-list key)
 
-`=> value`
+`=> value or #f`
 
 (**val** association-list value)
 
-`=> key`
+`=> key or #f`
 
 (**alter** association-list key value)
 
