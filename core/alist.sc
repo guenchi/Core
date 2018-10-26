@@ -50,16 +50,17 @@
     (define ref
         (lambda (str x)
             (if (null? str)
-                '()
+                #f
                 (if (equal? (caar str) x)
                     (cdar str)
                     (ref (cdr str) x)))))
 
 
+
     (define val
         (lambda (str x)
             (if (null? str)
-                '()
+                #f
                 (if (equal? (cdar str) x)
                     (caar str)
                     (val (cdr str) x)))))
