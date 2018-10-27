@@ -21,10 +21,6 @@
 ;  SOFTWARE.
 
 
-
-
-
-
 (library (core loop)
          (export
           in
@@ -33,10 +29,8 @@
           in-alist
           in-string
           in-naturals
-          in-range
+          range
           for
-          <-
-          until
           for/sum
           for/list
           for/vector
@@ -45,7 +39,8 @@
           for/min
           for/and
           for/or
-          for/string)
+          for/string
+          for/break)
          (import 
           (chezscheme))
 
@@ -53,32 +48,40 @@
          (define-syntax in-vector (syntax-rules ()))
          (define-syntax in-alist (syntax-rules ()))
          (define-syntax in-naturals (syntax-rules ()))
-         (define-syntax <- (syntax-rules ()))
          (define-syntax in-string (syntax-rules ()))
-         (define-syntax in-range (syntax-rules ()))
-         (define-syntax until (syntax-rules ()))
          (define-syntax in (syntax-rules ()))
          
          
          (define-syntax for
-           (syntax-rules (in-list in-vector in-alist <- in-string
-                                  until in
-                                  )
-             ((_ var <- (in-list val) block ...)
+
+           (syntax-rules (in-list in-vector in-alist in-string in range)
+             ((_ var in-list (range args ...) block ...)
+              (for var in (range args ...) block ...))
+             ((_ var in (range a) block ...)
+              (for var in (range 0 a) block ...))
+             ((_ var in (range a b) block ...)
+              (let loop ((num a))
+                (if (>= num b)
+                    (void)
+                    (let ([var num])
+                      block ...
+                      (loop (+ num 1))))))
+             ((_ var in-list val block ...)
+
               (let loop ((lst val))
                 (if (null? lst)
                     (void)
                     (let ((var (car lst)))
                       block ...
                       (loop (cdr lst))))))
-             ((_ var <- (in-vector val) block ...)
+             ((_ var in-vector val block ...)
               (let loop ((pos 0))
                 (if (>= pos (vector-length val))
                     (void)
                     (let ((var (vector-ref val pos)))
                       block ...
                       (loop (+ pos 1))))))
-             ((_ (key val) <- (in-alist alist) block ...)
+             ((_ (key val) in-alist alist block ...)
               (let loop ((pos alist))
                 (if (null? pos)
                     (void)
@@ -87,18 +90,19 @@
                           )
                       block ...
                       (loop (cdr pos))))))
-             ((_ var <- (in-string val) block ...)
+             ((_ var in-string val block ...)
               (let loop ((pos 0))
                 (if (>= pos (string-length val))
                     (void)
                     (let ((var (string-ref val pos)))
                       block ...
                       (loop (+ pos 1))))))
-             ((_ var <- (in-naturals) block ...)
+             ((_ var in-naturals block ...)
               (let loop ((pos 0))
                 (let ((var pos))
                   block ...
                   (loop (+ pos 1)))))
+
 
 
              
@@ -146,11 +150,19 @@
              ((_ var <- (in-range range-args ...) block ...)
               (for var <- (in-list (range range-args ...)) block ...))
              ((_ var in val block ...)
-              (cond [(list? val) (for var <- (in-list val) block ...)]
-                    [(vector? val) (for var <- (in-vector val) block ...)]
-                    [(string? val) (for var <- (in-string val) block ...)]))
+              (cond [(list? val) (for var in-list val block ...)]
+                    [(vector? val) (for var in-vector val block ...)]
+                    [(string? val) (for var in-string val block ...)]))
              ((_ . args) (error "for : invalid syntax."))
              ))
+
+         (define-syntax for/break
+           (lambda (stx)
+             (syntax-case stx ()
+               [(k matcher <- val do ...)
+                #`(call/cc (lambda (#,(datum->syntax #'k 'break))
+                             (for matcher <- val do ...)))])))
+             
 
          (define-syntax for/sum
            (syntax-rules ()
@@ -228,3 +240,5 @@
              ((e) (range 0 e))))
                  
          )
+
+(import (core loop)) ;;for test convenience
