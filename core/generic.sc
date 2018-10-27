@@ -113,9 +113,7 @@
                                     new)]
              [else (error 'push "unknown datatype")]
              ))
-
          
-         )
-(import (core generic))
-;;for test convenience
+ )
+
 
