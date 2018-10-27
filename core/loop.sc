@@ -53,6 +53,7 @@
          
          
          (define-syntax for
+
            (syntax-rules (in-list in-vector in-alist in-string in range)
              ((_ var in-list (range args ...) block ...)
               (for var in (range args ...) block ...))
@@ -66,6 +67,7 @@
                       block ...
                       (loop (+ num 1))))))
              ((_ var in-list val block ...)
+
               (let loop ((lst val))
                 (if (null? lst)
                     (void)
@@ -101,6 +103,52 @@
                   block ...
                   (loop (+ pos 1)))))
 
+
+
+             
+             
+             ((_ var <- (in-list val until condition) block ...)
+              (let loop ((lst val))
+                (if (null? lst)
+                    (void)
+                    (let ((var (car lst)))
+                      (when (not condition) block ...
+                        (loop (cdr lst)))))))
+             ((_ var <- (in-vector val until condition) block ...)
+              (let loop ((pos 0))
+                (if (>= pos (vector-length val))
+                    (void)
+                    (let ((var (vector-ref val pos)))
+                      (when (not condition)  block ...
+                        (loop (+ pos 1)))))))
+             ((_ (key val) <- (in-alist alist until condition) block ...)
+              (let loop ((pos alist))
+                (if (null? pos)
+                    (void)
+                    (let ((key (car (car pos)))
+                          (val (cdr (car pos)))
+                          )
+                      (when (not condition)  block ...
+                        (loop (cdr pos)))))))
+             ((_ var <- (in-string val until condition) block ...)
+              (let loop ((pos 0))
+                (if (>= pos (string-length val))
+                    (void)
+                    (let ((var (string-ref val pos)))
+                      (when (not condition)  block ...
+                        (loop (+ pos 1)))))))
+             ((_ var <- (in-naturals until condition) block ...)
+              (let loop ((pos 0))
+                (let ((var pos))
+                  (when (not condition) block ...
+                    (loop (+ pos 1))))))
+
+
+             
+             ((_ var <- (in-range range-args ... until condition) block ...)
+              (for var <- (in-list (range range-args ...) until condition) block ...))
+             ((_ var <- (in-range range-args ...) block ...)
+              (for var <- (in-list (range range-args ...)) block ...))
              ((_ var in val block ...)
               (cond [(list? val) (for var in-list val block ...)]
                     [(vector? val) (for var in-vector val block ...)]
