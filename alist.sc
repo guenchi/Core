@@ -48,165 +48,165 @@
 
 
     (define ref
-        (lambda (str x)
-            (if (null? str)
+        (lambda (l x)
+            (if (null? l)
                 #f
-                (if (equal? (caar str) x)
-                    (cdar str)
-                    (ref (cdr str) x)))))
+                (if (equal? (caar l) x)
+                    (cdar l)
+                    (ref (cdr l) x)))))
 
 
 
     (define val
-        (lambda (str x)
-            (if (null? str)
+        (lambda (l x)
+            (if (null? l)
                 #f
-                (if (equal? (cdar str) x)
-                    (caar str)
-                    (val (cdr str) x)))))
+                (if (equal? (cdar l) x)
+                    (caar l)
+                    (val (cdr l) x)))))
  
     (define alter
-        (lambda (lst x y)
-            (if (null? (car lst))
-                lst
-                (if (equal? (caar lst) x)
-                    (cons (cons x y) (cdr lst))
-                    (if (null? (cdr lst))
-                        lst
-                        (cons (car lst) (alter (cdr lst) x y)))))))             
+        (lambda (l x y)
+            (if (null? (car l))
+                l
+                (if (equal? (caar l) x)
+                    (cons (cons x y) (cdr l))
+                    (if (null? (cdr l))
+                        l
+                        (cons (car l) (alter (cdr l) x y)))))))             
 
 
     (define drop
-        (lambda (lst x)
-            (if (null? (car lst))
-                lst
-                (if (equal? (caar lst) x)
-                    (cdr lst)
-                    (if (null? (cdr lst))
-                        lst
-                        (cons (car lst) (drop (cdr lst) x))))))) 
+        (lambda (l x)
+            (if (null? (car l))
+                l
+                (if (equal? (caar l) x)
+                    (cdr l)
+                    (if (null? (cdr l))
+                        l
+                        (cons (car l) (drop (cdr l) x))))))) 
  
  
     (define push
-        (lambda (lst x y)
-            (if (null? (car lst))
+        (lambda (l x y)
+            (if (null? (car l))
                 (list (cons x y))
-                (if (null? (cdr lst))
-                    (list (car lst) (cons x y))
-                    (cons (car lst) (push (cdr lst) x y))))))
+                (if (null? (cdr l))
+                    (list (car l) (cons x y))
+                    (cons (car l) (push (cdr l) x y))))))
  
  
     (define pop
-        (lambda (lst)
-            (if (null? (car lst))
+        (lambda (l)
+            (if (null? (car l))
                 (lambda (f)
-                    (f '() lst))
-                (let l ((lst lst)(k '())(b #t))
-                    (if (null? (cdr lst))
+                    (f '() l))
+                (let loop ((l l)(k '())(b #t))
+                    (if (null? (cdr l))
                         (lambda (f)
-                            (f (car lst) (if b '(()) (reverse k))))
-                        (l (cdr lst) (cons (car lst) k) #f))))))
+                            (f (car l) (if b '(()) (reverse k))))
+                        (loop (cdr l) (cons (car l) k) #f))))))
  
     (define insert
-        (lambda (lst x y)
-            (if (null? (car lst))
+        (lambda (l x y)
+            (if (null? (car l))
                 (list (cons x y))
-                (cons (cons x y) lst))))
+                (cons (cons x y) l))))
  
  
     (define eject
-        (lambda (lst)
+        (lambda (l)
                 (lambda (f)
-                    (if (null? (cdr lst))
-                        (f (car lst) '(()))
-                        (f (car lst)(cdr lst)))))) 
+                    (if (null? (cdr l))
+                        (f (car l) '(()))
+                        (f (car l)(cdr l)))))) 
  
 
     
     (define alter!
-        (lambda (lst x y)
-            (if (null? (car lst))
+        (lambda (l x y)
+            (if (null? (car l))
                 #f
-                (if (equal? (caar lst) x)
+                (if (equal? (caar l) x)
                     (begin
-                        (set-car! lst (cons x y))
+                        (set-car! l (cons x y))
                         #t)
-                    (if (null? (cdr lst))
+                    (if (null? (cdr l))
                         #f
-                        (alter! (cdr lst) x y))))))
+                        (alter! (cdr l) x y))))))
               
 
 
     (define drop!
-        (lambda (lst x)
-            (if (null? (car lst))
+        (lambda (l x)
+            (if (null? (car l))
                 #f
-                (if (equal? (caar lst) x)
-                    (if (null? (cdr lst))
+                (if (equal? (caar l) x)
+                    (if (null? (cdr l))
                         (begin
-                            (set-car! lst '())
+                            (set-car! l '())
                             #t)
                         (begin
-                            (set-car! lst (cadr lst))
-                            (set-cdr! lst (cddr lst))
+                            (set-car! l (cadr l))
+                            (set-cdr! l (cddr l))
                             #t))
-                    (if (null? (cdr lst))
+                    (if (null? (cdr l))
                         #f
-                        (if (null? (cddr lst))
-                            (if (equal? (caadr lst) x)
+                        (if (null? (cddr l))
+                            (if (equal? (caadr l) x)
                                 (begin 
-                                    (set-cdr! lst '())
+                                    (set-cdr! l '())
                                     #t)
                                 #f)
-                            (drop! (cdr lst) x)))))))
+                            (drop! (cdr l) x)))))))
 
 
 
     (define push!
-	    (lambda (lst x y)
-		    (if (null? (cdr lst))
-                (if (null? (car lst))
+	    (lambda (l x y)
+		    (if (null? (cdr l))
+                (if (null? (car l))
                     (begin
-                        (set-car! lst (cons x y))
+                        (set-car! l (cons x y))
                         #t)
                     (begin
-                        (set-cdr! lst (cons (cons x y) '()))
+                        (set-cdr! l (cons (cons x y) '()))
                         #t))
-                (push! (cdr lst) x y))))
+                (push! (cdr l) x y))))
 
 
     (define pop!
-	    (lambda (str)
-		    (if (null? (cdr str))
-			    (let ((str str)(x (car str))) 
-					(set-car! str '())
+	    (lambda (l)
+		    (if (null? (cdr l))
+			    (let ((l l)(x (car l))) 
+					(set-car! l '())
 					x)
-			    (let loop ((str str)(x (cdr str)))
+			    (let loop ((l l)(x (cdr l)))
 					    (if (null? (cdr x))
 						    (begin    
-							    (set-cdr! str '())
+							    (set-cdr! l '())
 							    (car x))
-                            (loop (cdr str) (cdr x)))))))
+                            (loop (cdr l) (cdr x)))))))
 
 
 
     (define insert!
-        (lambda (lst x y)
-            (if (not (equal? (cdr lst) '()))
-                (set-cdr! lst (cons (car lst) (cdr lst))))
-            (set-car! lst (cons x y))
+        (lambda (l x y)
+            (if (not (equal? (cdr l) '()))
+                (set-cdr! l (cons (car l) (cdr l))))
+            (set-car! l (cons x y))
             #t))               
 
                             
 
     (define eject!
-	    (lambda (str)
-		    (let ((str str)(x (car str)))
-			    (if (null? (cdr str))
-				    (set-car! str '())
+	    (lambda (l)
+		    (let ((l l)(x (car l)))
+			    (if (null? (cdr l))
+				    (set-car! l '())
 				    (begin 
-					    (set-car! str (cadr str))
-					    (set-cdr! str (cddr str))))
+					    (set-car! l (cadr l))
+					    (set-cdr! l (cddr l))))
 			    x)))
 
  
