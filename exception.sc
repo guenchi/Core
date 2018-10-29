@@ -5,6 +5,7 @@
         (scheme))
 
 (define-syntax catch (syntax-rules ()))
+
 (define-syntax try 
     (syntax-rules (catch) 
         ((_ body (catch catcher)) 
@@ -15,5 +16,4 @@
                             (catcher condition) 
                             (exit condition)) 
                         (lambda () body)))))))
-
 )
