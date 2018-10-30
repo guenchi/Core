@@ -69,6 +69,15 @@
            (syntax-rules (in-list in-vector in-alist in-string in range
                                   map string-append append filter)
              ;;simple optimizations for loops
+             ((_ var in (append) block ...)
+              (void))
+             ((_ var in (append l) block ...)
+              (for var in-list l block ...))
+             ((_ var in (append val r ...) block ...)
+              (begin
+                (for var in-list val block ...)
+                (for var in (append r ...) block ...)))
+             
              ((_ var in (map f val) block ...)
               (let loop ((lst val))
                 (if (null? lst)
@@ -80,12 +89,9 @@
               (for var in-list (map args ...) block ...))
              ((_ var in (string-append args ...) block ...)
               (for var in-string (string-append args ...) block ...))
-             ((_ var in (append args ...) block ...)
-              (for var in-list (append args ...) block ...))
              ((_ var in (filter args ...) block ...)
               (for var in-list (filter args ...) block ...))
              
-
              ;;;simple optimizations for loops
              ((_ var in-list (range args ...) block ...)
               (for var in (range args ...) block ...))
@@ -225,6 +231,6 @@
                         (cons s (range (+ s 1) e))))
              ((e) (range 0 e))))
                  
-)
+         )
 
 (import (core loop))
