@@ -26,26 +26,26 @@
 
 
 (library (core string)
-    (export
-        split
-        string-prefix?
-        string-split
-        build-string
-        string-join  
-        string-find
-        string-replace)
-    (import
-        (scheme))
+         (export
+          split
+          string-prefix?
+          string-split
+          build-string
+          string-join  
+          string-find
+          string-replace)
+         (import
+          (scheme))
 
-(define split
-    (lambda (s c)
-        (define x (string-length s))
-        (let l ((x x)(y (- x 1))(r '()))
-            (if (= y -1)
-                (cons (substring s 0 x) r)
-                (if (char=? (string-ref s y) c)
-                    (l y (- y 1)(cons (substring s (+ y 1) x) r))
-                    (l x (- y 1) r))))))
+         (define split
+           (lambda (s c)
+             (define x (string-length s))
+             (let l ((x x)(y (- x 1))(r '()))
+               (if (= y -1)
+                   (cons (substring s 0 x) r)
+                   (if (char=? (string-ref s y) c)
+                       (l y (- y 1)(cons (substring s (+ y 1) x) r))
+                       (l x (- y 1) r))))))
  
 
          (define (string-prefix? str pre)
@@ -85,7 +85,7 @@
            (define len (string-length to-find))
            (define strlen (string-length str))
            (let loop ((pos 0))
-                (cond
+             (cond
                ((> (+ len pos) strlen) '())
                ((string-prefix? (substring str pos (+ pos len)) to-find) (cons pos (loop (+ pos len))))
                (else (loop (+ pos 1))))))
@@ -103,4 +103,4 @@
                (else (loop (+ pos 1) (cons (string-ref str pos) acc))))))
 
 
-)
+         )

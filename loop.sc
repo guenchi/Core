@@ -40,7 +40,8 @@
           for/and
           for/or
           for/string
-          for/break)
+          for/break
+          listc)
          (import 
           (chezscheme))
 
@@ -50,10 +51,48 @@
          (define-syntax in-naturals (syntax-rules ()))
          (define-syntax in-string (syntax-rules ()))
          (define-syntax in (syntax-rules ()))
-         
+
+
+         (define-syntax listc
+           (syntax-rules (if)
+             [(_ ret-expr) (list ret-expr)]
+             [(_ ret-expr if condition rest ...)
+              (if condition
+                  (listc ret-expr rest ...)
+                  '())]
+             [(_ ret-expr [var val] rest ...)
+              (apply append (map (lambda (var) (listc ret-expr rest ...))
+                                 val))]))
+
          
          (define-syntax for
-           (syntax-rules (in-list in-vector in-alist in-string in range)
+           (syntax-rules (in-list in-vector in-alist in-string in range
+                                  map string-append append filter)
+             ;;simple optimizations for loops
+             ((_ var in (append) block ...)
+              (void))
+             ((_ var in (append l) block ...)
+              (for var in-list l block ...))
+             ((_ var in (append val r ...) block ...)
+              (begin
+                (for var in-list val block ...)
+                (for var in (append r ...) block ...)))
+             
+             ((_ var in (map f val) block ...)
+              (let loop ((lst val))
+                (if (null? lst)
+                    (void)
+                    (let ((var (f (car lst))))
+                      block ...
+                      (loop (cdr lst))))))
+             ((_ var in (map args ...) block ...)
+              (for var in-list (map args ...) block ...))
+             ((_ var in (string-append args ...) block ...)
+              (for var in-string (string-append args ...) block ...))
+             ((_ var in (filter args ...) block ...)
+              (for var in-list (filter args ...) block ...))
+             
+             ;;;simple optimizations for loops
              ((_ var in-list (range args ...) block ...)
               (for var in (range args ...) block ...))
              ((_ var in (range a) block ...)
@@ -65,6 +104,7 @@
                     (let ([var num])
                       block ...
                       (loop (+ num 1))))))
+             
              ((_ var in-list val block ...)
               (let loop ((lst val))
                 (if (null? lst)
@@ -191,4 +231,6 @@
                         (cons s (range (+ s 1) e))))
              ((e) (range 0 e))))
                  
-)
+         )
+
+(import (core loop))

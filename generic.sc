@@ -30,7 +30,7 @@
                  fifth sixth seventh eigth ninth tenth eleventh twelfth
                  push
                  )
-         (import (chezscheme))
+         (import (chezscheme) (core syntax))
          (meta define index-identifiers '())
          (meta define (assoc/free-identifier=? x lst)
                (if (null? lst)
@@ -40,10 +40,13 @@
                        (assoc/free-identifier=? x (cdr lst)))))
          (define-syntax set-generic!
            (lambda (stx)
-             (syntax-case stx (car cdr vector-ref list-ref first second third fourth if)
+             (syntax-case stx (car cdr vector-ref list-ref if
+                                   fxvector-ref)
                [(_ (if condition var1 var2) value)
                 #'(if condition (set-generic! var1 value)
                       (set-generic! var2 value))]
+               [(_ (fxvector-ref var index) value)
+                #'(fxvector-set! var index value)]
                [(_ (car var) value)
                 #'(set-car! var value)]
                [(_ (cdr var) value)
@@ -114,6 +117,8 @@
              [else (error 'push "unknown datatype")]
              ))
          
- )
+         )
+
+(import (core generic))
 
 
