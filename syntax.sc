@@ -1,5 +1,5 @@
 (library (core syntax)
-         (export define-syntax-rule ~> ~>> -> and-let*)
+         (export define-syntax-rule ~> ~>> and-let*)
          (import (chezscheme))
 
          (define-syntax define-syntax-rule
@@ -8,7 +8,7 @@
               (define-syntax macro-name
                 (syntax-rules ()
                   [(_ . patterns) form]))]))
-         ;;threading macro
+         ;;threading macros
          (define-syntax ~>
            (syntax-rules ()
              [(_ init) init]
