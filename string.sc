@@ -47,21 +47,24 @@
                     (if (char=? (string-ref s y) c)
                         (l y (- y 1)(cons (substring s (+ y 1) x) r))
                         (l x (- y 1) r))))))
-    ; (define (split s c)
-    ;     (letrec* ([len (string-length s)]
-    ;               [walk (lambda (str begin end rst)
-    ;                       (cond ((>= begin len) rst)
-    ;                             ((or (= end len) (char=? (string-ref str end) c))
-    ;                               (walk
-    ;                                 str 
-    ;                                 (+ end 1)
-    ;                                 (+ end 1)
-    ;                                 (if (= begin end) 
-    ;                                   rst
-    ;                                   (cons (substring str begin end) rst))))
-    ;                             (else
-    ;                               (walk str begin (+ end 1) rst))))])
-    ;       (reverse (walk s 0 0 '()))))
+    
+    
+    (define split*
+        (lambda (s c)
+            (letrec* ((len (string-length s))
+                (walk (lambda (str begin end rst)
+                        (cond 
+                            ((>= begin len) rst)
+                            ((or (= end len) (char=? (string-ref str end) c))
+                                (walk 
+                                    str 
+                                    (+ end 1)
+                                    (+ end 1)
+                                    (if (= begin end) 
+                                        rst
+                                        (cons (substring str begin end) rst))))
+                            (else (walk str begin (+ end 1) rst))))))
+            (reverse (walk s 0 0 '())))))
  
 
          (define (string-prefix? str pre)
