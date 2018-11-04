@@ -33,7 +33,8 @@
           build-string
           string-join  
           string-find
-          string-replace)
+          string-replace
+          string-replace*)
          (import
           (scheme))
 
@@ -98,9 +99,30 @@
              (cond
                ((>= pos strlen) (list->string (reverse acc)))
                ((and (<= (+ len pos) strlen)
-                     (string-prefix? (substring str pos (+ pos len)) from))
+                     (string=? (substring str pos (+ pos len)) from))
                 (loop (+ pos len) (append *replace* acc)))
                (else (loop (+ pos 1) (cons (string-ref str pos) acc))))))
 
+         (define (string-replace* str list-of-from list-of-to)
+           (define strlen (string-length str))
+           (define from-and-to (map (lambda (x y)
+                                      (cons x (reverse (string->list y))))
+                                    list-of-from list-of-to))
+           (let loop ((pos 0) (acc '()))
+             (cond
+               ((>= pos strlen) (list->string (reverse acc)))
+               (else
+                (call/cc (lambda (exit)
+                           (for-each
+                            (lambda (d)
+                              (when (string-prefix?
+                                     (substring str pos strlen)
+                                     (car d))
+                                (exit (loop (+ pos (string-length (car d)))
+                                            (append (cdr d) acc)))))
+                            from-and-to)
+                           (loop (+ pos 1) (cons (string-ref str pos) acc))))))))
+                                   
 
          )
+

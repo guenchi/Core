@@ -29,6 +29,7 @@
           in-alist
           in-string
           in-naturals
+          in-fxvector
           range
           for
           for/sum
@@ -48,8 +49,9 @@
          (define-syntax in-list (syntax-rules ()))
          (define-syntax in-vector (syntax-rules ()))
          (define-syntax in-alist (syntax-rules ()))
-         (define-syntax in-naturals (syntax-rules ()))
          (define-syntax in-string (syntax-rules ()))
+         (define-syntax in-fxvector (syntax-rules ()))
+         (define-syntax in-naturals (syntax-rules ()))
          (define-syntax in (syntax-rules ()))
 
 
@@ -67,7 +69,8 @@
          
          (define-syntax for
            (syntax-rules (in-list in-vector in-alist in-string in range
-                                  map string-append append filter)
+                                  map string-append append filter in-fxvector
+                                  in-naturals)
              ;;simple optimizations for loops
              ((_ var in (append) block ...)
               (void))
@@ -93,6 +96,13 @@
               (for var in-list (filter args ...) block ...))
              
              ;;;simple optimizations for loops
+             ((_ var in-fxvector val block ...)
+              (let loop ((pos 0))
+                (if (>= pos (fxvector-length val))
+                    (void)
+                    (let ((var (fxvector-ref val pos)))
+                      block ...
+                      (loop (+ pos 1))))))
              ((_ var in-list (range args ...) block ...)
               (for var in (range args ...) block ...))
              ((_ var in (range a) block ...)
@@ -144,7 +154,8 @@
              ((_ var in val block ...)
               (cond [(list? val) (for var in-list val block ...)]
                     [(vector? val) (for var in-vector val block ...)]
-                    [(string? val) (for var in-string val block ...)]))
+                    [(string? val) (for var in-string val block ...)]
+                    [(fxvector? val) (for var in-fxvector val block ...)]))
              ((_ . args) (error "for : invalid syntax."))
              ))
 
@@ -232,5 +243,3 @@
              ((e) (range 0 e))))
                  
          )
-
-(import (core loop))
