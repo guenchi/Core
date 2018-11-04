@@ -28,6 +28,7 @@
 (library (core string)
          (export
           split
+          split*
           string-prefix?
           string-split
           build-string
@@ -50,22 +51,19 @@
                         (l x (- y 1) r))))))
     
     
+
     (define split*
         (lambda (s c)
-            (letrec* ((len (string-length s))
-                (walk (lambda (str begin end rst)
-                        (cond 
-                            ((>= begin len) rst)
-                            ((or (= end len) (char=? (string-ref str end) c))
-                                (walk 
-                                    str 
-                                    (+ end 1)
-                                    (+ end 1)
-                                    (if (= begin end) 
-                                        rst
-                                        (cons (substring str begin end) rst))))
-                            (else (walk str begin (+ end 1) rst))))))
-            (reverse (walk s 0 0 '())))))
+            (define x (string-length s))
+            (define cons/drop 
+                (lambda (a b)
+                    (if (eq? a "") b (cons a b))))
+            (let l ((x x)(y (- x 1))(r '()))
+                (if (= y -1)
+                    (cons (substring s 0 x) r)
+                    (if (char=? (string-ref s y) c)
+                        (l y (- y 1)(cons/drop (substring s (+ y 1) x) r))
+                        (l x (- y 1) r))))))
  
 
          (define (string-prefix? str pre)
