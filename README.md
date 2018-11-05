@@ -109,6 +109,10 @@ Scheme's commonly used small functions
 
 `=> list of substrings of str that are separated by char`
 
+(**split*** str char)
+
+`=> list of substrings of str that are separated by char`
+
 (**string-split** str sep)
 
 `=> list of substrings of str that are separated by string sep`
