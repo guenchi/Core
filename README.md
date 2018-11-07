@@ -109,6 +109,10 @@ Scheme's commonly used small functions
 
 `=> list of substrings of str that are separated by char`
 
+(**split*** str char)
+
+`=> list of substrings of str that are separated by char, but ignore emputy string`
+
 (**string-split** str sep)
 
 `=> list of substrings of str that are separated by string sep`
@@ -122,5 +126,9 @@ Scheme's commonly used small functions
 `=> list of pairs (positions of to-find in the string str)`
 
 (**string-replace** str from to)
+
+`=> string that froms are replaced by to`
+
+(**string-replace*** str list-from list-to)
 
 `=> string that froms are replaced by to`
