@@ -30,6 +30,7 @@
           in-string
           in-naturals
           in-fxvector
+          in-stream
           range
           for
           for/sum
@@ -44,7 +45,7 @@
           for/break
           listc)
          (import 
-          (chezscheme))
+          (chezscheme) (core data) (core syntax))
 
          (define-syntax in-list (syntax-rules ()))
          (define-syntax in-vector (syntax-rules ()))
@@ -52,6 +53,7 @@
          (define-syntax in-string (syntax-rules ()))
          (define-syntax in-fxvector (syntax-rules ()))
          (define-syntax in-naturals (syntax-rules ()))
+         (define-syntax in-stream (syntax-rules ()))
          (define-syntax in (syntax-rules ()))
 
 
@@ -65,99 +67,120 @@
              [(_ ret-expr [var val] rest ...)
               (apply append (map (lambda (var) (listc ret-expr rest ...))
                                  val))]))
+         (meta define must-return-list
+               (list #'range #'append #'map #'filter #'range
+                     #'string->list #'fold-right #'list))
+         (meta define must-return-string
+               (list #'string-append #'list->string #'stream-take))
+         (meta define must-return-stream
+               (list #'stream-map stream* stream))
 
          
          (define-syntax for
-           (syntax-rules (in-list in-vector in-alist in-string in range
-                                  map string-append append filter in-fxvector
-                                  in-naturals)
-             ;;simple optimizations for loops
-             ((_ var in (append) block ...)
-              (void))
-             ((_ var in (append l) block ...)
-              (for var in-list l block ...))
-             ((_ var in (append val r ...) block ...)
-              (begin
-                (for var in-list val block ...)
-                (for var in (append r ...) block ...)))
+           (lambda (stx)
+             (syntax-case stx (in-list in-vector in-alist in-string in range
+                                       map string-append append filter in-fxvector
+                                       in-naturals in-stream)
+               ;;;general optimizations
+               ((_ var in (head args ...) block ...)
+                (member/free-identifier=? #'head must-return-list)
+                #'(for var in-list (head args ...) block ...))
+               ((_ var in (head args ...) block ...)
+                (member/free-identifier=? #'head must-return-stream)
+                #'(for var in-stream (head args ...) block ...))
+               ((_ var in (head args ...) block ...)
+                (member/free-identifier=? #'head must-return-string)
+                #'(for var in-string (head args ...) block ...))
+               
+               ;;simple optimizations for in-list
+               ((_ var in-list (append) block ...)
+                #'(void))
+               ((_ var in-list (append l) block ...)
+                #'(for var in-list l block ...))
+               ((_ var in-list (append val r ...) block ...)
+                #'(begin
+                    (for var in-list val block ...)
+                    (for var in-list (append r ...) block ...)))
              
-             ((_ var in (map f val) block ...)
-              (let loop ((lst val))
-                (if (null? lst)
-                    (void)
-                    (let ((var (f (car lst))))
-                      block ...
-                      (loop (cdr lst))))))
-             ((_ var in (map args ...) block ...)
-              (for var in-list (map args ...) block ...))
-             ((_ var in (string-append args ...) block ...)
-              (for var in-string (string-append args ...) block ...))
-             ((_ var in (filter args ...) block ...)
-              (for var in-list (filter args ...) block ...))
-             
-             ;;;simple optimizations for loops
-             ((_ var in-fxvector val block ...)
-              (let loop ((pos 0))
-                (if (>= pos (fxvector-length val))
-                    (void)
-                    (let ((var (fxvector-ref val pos)))
-                      block ...
-                      (loop (+ pos 1))))))
-             ((_ var in-list (range args ...) block ...)
-              (for var in (range args ...) block ...))
-             ((_ var in (range a) block ...)
-              (for var in (range 0 a) block ...))
-             ((_ var in (range a b) block ...)
-              (let loop ((num a))
-                (if (>= num b)
-                    (void)
-                    (let ([var num])
-                      block ...
-                      (loop (+ num 1))))))
-             
-             ((_ var in-list val block ...)
-              (let loop ((lst val))
-                (if (null? lst)
-                    (void)
-                    (let ((var (car lst)))
-                      block ...
-                      (loop (cdr lst))))))
-             ((_ var in-vector val block ...)
-              (let loop ((pos 0))
-                (if (>= pos (vector-length val))
-                    (void)
-                    (let ((var (vector-ref val pos)))
-                      block ...
-                      (loop (+ pos 1))))))
-             ((_ (key val) in-alist alist block ...)
-              (let loop ((pos alist))
-                (if (null? pos)
-                    (void)
-                    (let ((key (car (car pos)))
-                          (val (cdr (car pos)))
-                          )
-                      block ...
-                      (loop (cdr pos))))))
-             ((_ var in-string val block ...)
-              (let loop ((pos 0))
-                (if (>= pos (string-length val))
-                    (void)
-                    (let ((var (string-ref val pos)))
-                      block ...
-                      (loop (+ pos 1))))))
-             ((_ var in-naturals block ...)
-              (let loop ((pos 0))
-                (let ((var pos))
-                  block ...
-                  (loop (+ pos 1)))))
+               ((_ var in-list (map f val) block ...)
+                #'(let loop ((lst val))
+                    (if (null? lst)
+                        (void)
+                        (let ((var (f (car lst))))
+                          block ...
+                          (loop (cdr lst))))))
+               
 
-             ((_ var in val block ...)
-              (cond [(list? val) (for var in-list val block ...)]
-                    [(vector? val) (for var in-vector val block ...)]
-                    [(string? val) (for var in-string val block ...)]
-                    [(fxvector? val) (for var in-fxvector val block ...)]))
-             ((_ . args) (error "for : invalid syntax."))
-             ))
+               ((_ var in-list (range a) block ...)
+                #'(for var in-list (range 0 a) block ...))
+               ((_ var in-list (range a b) block ...)
+                #'(let loop ((num a))
+                    (if (>= num b)
+                        (void)
+                        (let ([var num])
+                          block ...
+                          (loop (+ num 1))))))
+             
+               ;;;
+
+               ((_ var in-stream val block ...)
+                #'(let loop ((stm val))
+                    (if (stream-null? stm)
+                        (void)
+                        (let ((var (stream-car stm)))
+                          block ...
+                          (loop (stream-cdr stm))))))
+               ((_ var in-fxvector val block ...)
+                #'(let loop ((pos 0))
+                    (if (>= pos (fxvector-length val))
+                        (void)
+                        (let ((var (fxvector-ref val pos)))
+                          block ...
+                          (loop (+ pos 1))))))
+             
+               ((_ var in-list val block ...)
+                #'(let loop ((lst val))
+                  (if (null? lst)
+                      (void)
+                      (let ((var (car lst)))
+                        block ...
+                        (loop (cdr lst))))))
+               ((_ var in-vector val block ...)
+                #'(let loop ((pos 0))
+                  (if (>= pos (vector-length val))
+                      (void)
+                      (let ((var (vector-ref val pos)))
+                        block ...
+                        (loop (+ pos 1))))))
+               ((_ (key val) in-alist alist block ...)
+                #'(let loop ((pos alist))
+                  (if (null? pos)
+                      (void)
+                      (let ((key (car (car pos)))
+                            (val (cdr (car pos)))
+                            )
+                        block ...
+                        (loop (cdr pos))))))
+               ((_ var in-string val block ...)
+                #'(let loop ((pos 0))
+                  (if (>= pos (string-length val))
+                      (void)
+                      (let ((var (string-ref val pos)))
+                        block ...
+                        (loop (+ pos 1))))))
+               ((_ var in-naturals block ...)
+                #'(let loop ((pos 0))
+                  (let ((var pos))
+                    block ...
+                    (loop (+ pos 1)))))
+
+               ((_ var in val block ...)
+                #'(cond [(list? val) (for var in-list val block ...)]
+                      [(vector? val) (for var in-vector val block ...)]
+                      [(string? val) (for var in-string val block ...)]
+                      [(fxvector? val) (for var in-fxvector val block ...)]))
+               ((_ . args) (error 'for "for : invalid syntax."))
+               )))
 
          (define-syntax for/break
            (lambda (stx)
@@ -243,3 +266,5 @@
              ((e) (range 0 e))))
                  
          )
+
+(import (core loop) (core data))
