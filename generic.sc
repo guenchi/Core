@@ -30,14 +30,8 @@
                  fifth sixth seventh eigth ninth tenth eleventh twelfth
                  push
                  )
-         (import (chezscheme) (core syntax))
+         (import (chezscheme) (core syntax) (for (core syntax) expand))
          (meta define index-identifiers '())
-         (meta define (assoc/free-identifier=? x lst)
-               (if (null? lst)
-                   #f
-                   (if (free-identifier=? x (caar lst))
-                       (car lst)
-                       (assoc/free-identifier=? x (cdr lst)))))
          (define-syntax set-generic!
            (lambda (stx)
              (syntax-case stx (car cdr vector-ref list-ref if

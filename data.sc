@@ -112,5 +112,3 @@
          )
 
 (import (core data))
-(define fib (stream* 1 1 (stream-map + (stream-drop fib 1) fib)))
-(display (stream-ref fib 5))
