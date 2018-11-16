@@ -125,10 +125,7 @@ Scheme's commonly used small functions
 
 `=> list of pairs (positions of to-find in the string str)`
 
-(**string-replace** str from to)
+(**string-replace** str <from:string or listof string> <to:string or listof string>)
 
 `=> string that froms are replaced by to`
 
-(**string-replace*** str list-from list-to)
-
-`=> string that froms are replaced by to`

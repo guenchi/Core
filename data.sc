@@ -109,6 +109,9 @@
            (if (= n 0)
                s
                (stream-drop (stream-cdr s) (- n 1))))
+
+
+         
          )
 
 (import (core data))
