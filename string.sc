@@ -35,7 +35,7 @@
           string-join  
           string-find
           string-replace
-          string-replace*)
+          )
          (import
           (scheme))
 
@@ -108,7 +108,7 @@
                ((string-prefix? (substring str pos (+ pos len)) to-find) (cons pos (loop (+ pos len))))
                (else (loop (+ pos 1))))))
 
-         (define (string-replace str from to)
+         (define (string-replace1 str from to)
            (define len (string-length from))
            (define strlen (string-length str))
            (define *replace* (reverse (string->list to)))
@@ -139,6 +139,10 @@
                                             (append (cdr d) acc)))))
                             from-and-to)
                            (loop (+ pos 1) (cons (string-ref str pos) acc))))))))
+
+         (define (string-replace str from to)
+           (if (string? from) (string-replace1 str from to)
+               (string-replace* str from to)))
                                    
 
          )

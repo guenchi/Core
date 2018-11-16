@@ -178,6 +178,7 @@
                 #'(cond [(list? val) (for var in-list val block ...)]
                       [(vector? val) (for var in-vector val block ...)]
                       [(string? val) (for var in-string val block ...)]
+                      [(stream? val) (for var in-stream val block ...)]
                       [(fxvector? val) (for var in-fxvector val block ...)]))
                ((_ . args) (error 'for "for : invalid syntax."))
                )))
