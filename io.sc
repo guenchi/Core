@@ -17,13 +17,13 @@
 
          (define (port->string p)
            (dynamic-wind void
-                         (let loop ((s '()))
+                         (lambda () (let loop ((s '()))
                            (let ([c (read-char p)])
                              (if (eof-object? c)
                                  (list->string (reverse s))
                                  (loop (cons c s)))
-                             ))
-                         (lambda () (close-output-port p))))
+                             )))
+                         (lambda () (close-input-port p))))
 
          )
 

@@ -73,7 +73,7 @@
          (meta define must-return-string
                (list #'string-append #'list->string #'stream-take))
          (meta define must-return-stream
-               (list #'stream-map stream* stream))
+               (list #'stream-map #'stream* #'stream))
 
          
          (define-syntax for
