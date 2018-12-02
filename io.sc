@@ -18,11 +18,11 @@
          (define (port->string p)
            (dynamic-wind void
                          (lambda () (let loop ((s '()))
-                           (let ([c (read-char p)])
-                             (if (eof-object? c)
-                                 (list->string (reverse s))
-                                 (loop (cons c s)))
-                             )))
+                                      (let ([c (read-char p)])
+                                        (if (eof-object? c)
+                                            (list->string (reverse s))
+                                            (loop (cons c s)))
+                                        )))
                          (lambda () (close-input-port p))))
 
          )
