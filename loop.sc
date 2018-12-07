@@ -31,7 +31,12 @@
           in-naturals
           in-fxvector
           in-stream
+          in-indexed
+          in-lined
+          in-delimited
+          in-directory
           range
+          indexed
           for
           for/sum
           for/list
@@ -45,7 +50,7 @@
           for/break
           listc)
          (import 
-          (chezscheme) (core data) (core syntax))
+          (chezscheme) (core data) (core syntax) (core string))
 
          (define-syntax in-list (syntax-rules ()))
          (define-syntax in-vector (syntax-rules ()))
@@ -54,8 +59,12 @@
          (define-syntax in-fxvector (syntax-rules ()))
          (define-syntax in-naturals (syntax-rules ()))
          (define-syntax in-stream (syntax-rules ()))
+         (define-syntax in-indexed (syntax-rules ()))
          (define-syntax in (syntax-rules ()))
-
+         (define-syntax in-lined (syntax-rules ()))
+         (define-syntax in-delimited (syntax-rules ()))
+         (define-syntax in-directory (syntax-rules ()))
+     
 
          (define-syntax listc
            (syntax-rules (if)
@@ -80,7 +89,8 @@
            (lambda (stx)
              (syntax-case stx (in-list in-vector in-alist in-string in range
                                        map string-append append filter in-fxvector
-                                       in-naturals in-stream)
+                                       in-naturals in-stream
+                                       in-indexed in-lined in-delimited in-directory)
                ;;;general optimizations
                ((_ var in (head args ...) block ...)
                 (member/free-identifier=? #'head must-return-list)
@@ -122,7 +132,21 @@
                           (loop (+ num 1))))))
              
                ;;;
-
+               ((_ var in-directory path block ...)
+                #'(for var in-list (directory-list path)
+                    block ...))
+               ((_ var (in-delimited sep) val block ...)
+                #'(for var in-list (string-split val sep)
+                    block ...))
+               ((_ var in-lined val block ...)
+                #'(for var in-list (split val #\newline)
+                  block ...))
+               ((_ (a b) in-indexed val block ...)
+                #'(let ([a -1])
+                    (for b in val
+                      (set! a (+ a 1))
+                        block ...)))
+                
                ((_ var in-stream val block ...)
                 #'(let loop ((stm val))
                     (if (stream-null? stm)
@@ -137,7 +161,6 @@
                         (let ((var (fxvector-ref val pos)))
                           block ...
                           (loop (+ pos 1))))))
-             
                ((_ var in-list val block ...)
                 #'(let loop ((lst val))
                   (if (null? lst)
@@ -265,6 +288,12 @@
              ((s e) (if (>= s e) '()
                         (cons s (range (+ s 1) e))))
              ((e) (range 0 e))))
+
+         (define (indexed seq)
+           (let ([c -1])
+           (for/list v in seq
+             (set! c (+ c 1))
+             (cons c v))))
                  
          )
 

@@ -40,30 +40,30 @@
           (scheme))
 
 
-    (define split
-        (lambda (s c)
-            (define x (string-length s))
-            (let l ((x x)(y (- x 1))(r '()))
-                (if (= y -1)
-                    (cons (substring s 0 x) r)
-                    (if (char=? (string-ref s y) c)
-                        (l y (- y 1)(cons (substring s (+ y 1) x) r))
-                        (l x (- y 1) r))))))
+         (define split
+           (lambda (s c)
+             (define x (string-length s))
+             (let l ((x x)(y (- x 1))(r '()))
+               (if (= y -1)
+                   (cons (substring s 0 x) r)
+                   (if (char=? (string-ref s y) c)
+                       (l y (- y 1)(cons (substring s (+ y 1) x) r))
+                       (l x (- y 1) r))))))
     
     
 
-    (define split*
-        (lambda (s c)
-            (define x (string-length s))
-            (define cons/drop 
-                (lambda (a b)
-                    (if (eq? a "") b (cons a b))))
-            (let l ((x x)(y (- x 1))(r '()))
-                (if (= y -1)
-                    (cons (substring s 0 x) r)
-                    (if (char=? (string-ref s y) c)
-                        (l y (- y 1)(cons/drop (substring s (+ y 1) x) r))
-                        (l x (- y 1) r))))))
+         (define split*
+           (lambda (s c)
+             (define x (string-length s))
+             (define cons/drop 
+               (lambda (a b)
+                 (if (eq? a "") b (cons a b))))
+             (let l ((x x)(y (- x 1))(r '()))
+               (if (= y -1)
+                   (cons (substring s 0 x) r)
+                   (if (char=? (string-ref s y) c)
+                       (l y (- y 1)(cons/drop (substring s (+ y 1) x) r))
+                       (l x (- y 1) r))))))
  
 
          (define (string-prefix? str pre)
@@ -76,7 +76,7 @@
 
          (define (string-split str sep)
            (define len (string-length sep))
-           (define (split str acc)
+           (define (split- str acc)
              (cond
                ((string=? str "") (list (list->string (reverse acc))))
                ((string-prefix? str sep) (cons (list->string (reverse acc))
@@ -85,7 +85,9 @@
                (else (split (substring str 1 (string-length str))
                             (cons (string-ref str 0) acc)))
                ))
-           (split str '()))
+           (if (= len 1)
+               (split str (car (string->list sep)))
+               (split- str '())))
 
          (define (build-string n proc)
            (list->string
