@@ -7,10 +7,9 @@
          (define-syntax define-config
            (lambda (stx)
              (syntax-case stx ()
-               [(k var default-value)
+               [(k var fname default-value)
                 (with-syntax
-                    ([fname (format "~a" (syntax->datum #'var))]
-                     [var-set! (datum->syntax
+                    ([var-set! (datum->syntax
                                 #'k
                                 (string->symbol
                                  (format "set-~a!" (syntax->datum #'var))))]
@@ -40,10 +39,9 @@
          (define-syntax define-config-table
            (lambda (stx)
              (syntax-case stx ()
-               [(k table-name [var default-value] ...)
+               [(k table-name fname [var default-value] ...)
                 (with-syntax
-                    ([fname (format "~a" (syntax->datum #'table-name))]
-                     [(tmps ...) (generate-temporaries #'(var ...))]
+                    ([(tmps ...) (generate-temporaries #'(var ...))]
                      [(table-var ...) (map (lambda (id)
                                              (datum->syntax #'k
                                                             (string->symbol
@@ -89,11 +87,3 @@
          )
 
 (import (core configuration))
-
-
-;;;this library make it easier to make configurations
-;;;
-;;;(define-config-table main-actor.cfg [hp 100][mp 200])
-;;;main-actor.cfg-hp => 100
-;;;(set-main-actor.cfg-hp 99)
-;;;main-actor.cfg-hp => 99

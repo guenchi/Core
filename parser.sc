@@ -2,7 +2,7 @@
 
 (library (core parser)
          (export satisfy/p equal/p parser digit/p alpha/p parse-string
-                 eof/p many/p or/p some/p integer/p
+                 eof/p many/p or/p some/p integer/p any/p
                  )
          (import (chezscheme))
 
@@ -13,6 +13,8 @@
                [(procedure (car l)) (list 'parse-success (car l)
                                           (cdr l))]
                [else 'parse-fail])))
+
+         (define any/p (satisfy/p (lambda (_) #t)))
 
          (define (equal/p v) (satisfy/p (lambda (x) (equal? x v))))
          (define digit/p (satisfy/p (lambda (x) (char<=? #\0 x #\9))))
@@ -71,14 +73,19 @@
                            ((parser rest ...) (caddr res)))]))
                 )]))
 
-         (define (parse-string p str)
+         (define (parse-string p str . failure-thunk)
+           (define fail (if (null? failure-thunk)
+                            (lambda () (error 'parser "parse failed"))
+                            (car failure-thunk)
+                            ))
            (define res (p (string->list str)))
-           (cond [(eq? res 'parse-fail) (error 'parser "parse failed")]
+           (cond [(eq? res 'parse-fail) (fail)]
                  [(eq? (car res) 'parse-success)
                   (cadr res)]))
 
              
          
-
            
          )
+
+(import (core parser))

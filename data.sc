@@ -110,7 +110,6 @@
                s
                (stream-drop (stream-cdr s) (- n 1))))
 
-
          
          )
 
