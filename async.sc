@@ -88,5 +88,3 @@
   (c 'status))
 )
 
-(import (core async))
-
