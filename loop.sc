@@ -48,6 +48,9 @@
           for/or
           for/string
           for/break
+          for*
+          for*/list
+          for*/vector
           listc)
          (import 
           (chezscheme) (core data) (core syntax) (core string))
@@ -76,6 +79,7 @@
              [(_ ret-expr [var val] rest ...)
               (apply append (map (lambda (var) (listc ret-expr rest ...))
                                  val))]))
+         
          (meta define must-return-list
                (list #'range #'append #'map #'filter #'range
                      #'string->list #'fold-right #'list))
@@ -84,13 +88,29 @@
          (meta define must-return-stream
                (list #'stream-map #'stream* #'stream))
 
+         (meta define in-symbols
+               (syntax->list
+                #'(in-vector in-alist in-string in range
+                             map string-append append filter in-fxvector
+                             in-naturals in-stream
+                             in-indexed in-lined in-delimited in-directory)))
+         (define-syntax transform-if
+           (syntax-rules (if)
+             [(_ if condition statements ...)
+              (if condition
+                  (let ()
+                    statements ...)
+                  (void))]
+             [(_ statements ...)
+              (begin statements ...)]))
          
          (define-syntax for
            (lambda (stx)
              (syntax-case stx (in-list in-vector in-alist in-string in range
                                        map string-append append filter in-fxvector
                                        in-naturals in-stream
-                                       in-indexed in-lined in-delimited in-directory)
+                                       in-indexed in-lined in-delimited in-directory
+                                       )
                ;;;general optimizations
                ((_ var in (head args ...) block ...)
                 (member/free-identifier=? #'head must-return-list)
@@ -117,7 +137,7 @@
                     (if (null? lst)
                         (void)
                         (let ((var (f (car lst))))
-                          block ...
+                          (transform-if block ...)
                           (loop (cdr lst))))))
                
 
@@ -128,7 +148,7 @@
                     (if (>= num b)
                         (void)
                         (let ([var num])
-                          block ...
+                          (transform-if block ...)
                           (loop (+ num 1))))))
              
                ;;;
@@ -140,69 +160,70 @@
                     block ...))
                ((_ var in-lined val block ...)
                 #'(for var in-list (split val #\newline)
-                  block ...))
+                    block ...))
+               
                ((_ (a b) in-indexed val block ...)
                 #'(let ([a -1])
                     (for b in val
                       (set! a (+ a 1))
-                        block ...)))
+                      (transform-if block ...))))
                 
                ((_ var in-stream val block ...)
                 #'(let loop ((stm val))
                     (if (stream-null? stm)
                         (void)
                         (let ((var (stream-car stm)))
-                          block ...
+                          (transform-if block ...)
                           (loop (stream-cdr stm))))))
                ((_ var in-fxvector val block ...)
                 #'(let loop ((pos 0))
                     (if (>= pos (fxvector-length val))
                         (void)
                         (let ((var (fxvector-ref val pos)))
-                          block ...
+                          (transform-if block ...)
                           (loop (+ pos 1))))))
                ((_ var in-list val block ...)
                 #'(let loop ((lst val))
-                  (if (null? lst)
-                      (void)
-                      (let ((var (car lst)))
-                        block ...
-                        (loop (cdr lst))))))
+                    (if (null? lst)
+                        (void)
+                        (let ((var (car lst)))
+                          (transform-if block ...)
+                          (loop (cdr lst))))))
                ((_ var in-vector val block ...)
                 #'(let loop ((pos 0))
-                  (if (>= pos (vector-length val))
-                      (void)
-                      (let ((var (vector-ref val pos)))
-                        block ...
-                        (loop (+ pos 1))))))
+                    (if (>= pos (vector-length val))
+                        (void)
+                        (let ((var (vector-ref val pos)))
+                          (transform-if block ...)
+                          (loop (+ pos 1))))))
                ((_ (key val) in-alist alist block ...)
                 #'(let loop ((pos alist))
-                  (if (null? pos)
-                      (void)
-                      (let ((key (car (car pos)))
-                            (val (cdr (car pos)))
-                            )
-                        block ...
-                        (loop (cdr pos))))))
+                    (if (null? pos)
+                        (void)
+                        (let ((key (car (car pos)))
+                              (val (cdr (car pos)))
+                              )
+                          (transform-if block ...)
+                          (loop (cdr pos))))))
                ((_ var in-string val block ...)
                 #'(let loop ((pos 0))
-                  (if (>= pos (string-length val))
-                      (void)
-                      (let ((var (string-ref val pos)))
-                        block ...
-                        (loop (+ pos 1))))))
+                    (if (>= pos (string-length val))
+                        (void)
+                        (let ((var (string-ref val pos)))
+                          (transform-if block ...)
+                          (loop (+ pos 1))))))
                ((_ var in-naturals block ...)
                 #'(let loop ((pos 0))
-                  (let ((var pos))
-                    block ...
-                    (loop (+ pos 1)))))
+                    (let ((var pos))
+                      (transform-if block ...)
+                      (loop (+ pos 1)))))
 
                ((_ var in val block ...)
                 #'(cond [(list? val) (for var in-list val block ...)]
-                      [(vector? val) (for var in-vector val block ...)]
-                      [(string? val) (for var in-string val block ...)]
-                      [(stream? val) (for var in-stream val block ...)]
-                      [(fxvector? val) (for var in-fxvector val block ...)]))
+                        [(vector? val) (for var in-vector val block ...)]
+                        [(string? val) (for var in-string val block ...)]
+                        [(stream? val) (for var in-stream val block ...)]
+                        [(fxvector? val) (for var in-fxvector val block ...)]))
                ((_ . args) (error 'for "for : invalid syntax."))
                )))
 
@@ -291,10 +312,49 @@
 
          (define (indexed seq)
            (let ([c -1])
-           (for/list v in seq
-             (set! c (+ c 1))
-             (cons c v))))
-                 
+             (for/list v in seq
+               (set! c (+ c 1))
+               (cons c v))))
+
+         (meta define extract-for*
+               (lambda (stx)
+                 (syntax-case stx ()
+                   [([var <- rest ...] rest1 ...)
+                    (and (identifier? #'<-) (member/free-identifier=? #'<- in-symbols))
+                    (let-values ([(decls body)
+                                  (extract-for* #'(rest1 ...))])
+                      (values (cons #'(var <- rest ...) decls)
+                              body))
+                    ]
+                   [(rest1 ...)
+                    (values '() #'(rest1 ...))])))
+                                              
+
+         (define-syntax for*
+           (lambda (stx)
+             (syntax-case stx ()
+               [(_ [var0 <-0 rest0 ...] [var1 <-1 rest1 ...] rest2 ...)
+                (and (identifier? #'<-0) (member/free-identifier=? #'<-0 in-symbols)
+                     (identifier? #'<-1) (member/free-identifier=? #'<-1 in-symbols))
+                #'(for var0 <-0 rest0 ... (for* [var1 <-1 rest1 ...] rest2 ...))]
+               [(_ [var0 <-0 rest0 ...] rest1 ...)
+                (and (identifier? #'<-0) (member/free-identifier=? #'<-0 in-symbols))
+                #'(for var0 <-0 rest0 ... rest1 ...)]))
+           )
+
+         (define-syntax for*/list
+           (lambda (stx)
+             (syntax-case stx ()
+               ((_ rest ...)
+                (let-values ([(decls body) (extract-for* #'(rest ...))])
+                  #`(let ((acc '()))
+                      (for* #,@decls
+                        (set! acc (cons (let () #,@body) acc)))
+                      (reverse acc)))))))
+
+         (define-syntax for*/vector
+           (syntax-rules ()
+             [(_ rest ...) (list->vector (for*/list rest ...))]))
          )
 
 (import (core loop) (core data))
