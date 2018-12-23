@@ -1,5 +1,6 @@
 (library (core io)
-         (export file->string file-append port->string)
+         (export file->string file-append port->string
+                 read-line)
          (import (chezscheme))
          (define (file->string fname)
            (port->string (open-input-file fname))
@@ -24,6 +25,17 @@
                                             (loop (cons c s)))
                                         )))
                          (lambda () (close-input-port p))))
+
+         (define (read-line port)
+           (define (remove-r x)
+             (if (and (not (null? x)) (char=? (car x) #\return))
+                 (cdr x)
+                 x))
+           (let loop ((acc '()))
+             (let ([c (read-char port)])
+               (if (or (eof-object? c) (char=? c #\newline))
+                   (reverse (remove-r acc))
+                   (loop (cons c acc))))))
 
          )
 

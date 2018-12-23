@@ -51,6 +51,12 @@
           for*
           for*/list
           for*/vector
+          for*/sum
+          for*/product
+          for*/max
+          for*/min
+          for*/and
+          for*/or
           listc)
          (import 
           (chezscheme) (core data) (core syntax) (core string))
@@ -159,7 +165,7 @@
                 #'(for var in-list (string-split val sep)
                     block ...))
                ((_ var in-lined val block ...)
-                #'(for var in-list (split val #\newline)
+                #'(for var in-list (map remove-r (split val #\newline))
                     block ...))
                
                ((_ (a b) in-indexed val block ...)
@@ -355,6 +361,61 @@
          (define-syntax for*/vector
            (syntax-rules ()
              [(_ rest ...) (list->vector (for*/list rest ...))]))
+
+         (define-syntax for*/sum
+           (lambda (stx)
+             (syntax-case stx ()
+               ((_ rest ...)
+                (let-values ([(decls body) (extract-for* #'(rest ...))])
+                  #`(let ((acc 0))
+                      (for* #,@decls
+                        (set! acc (+ (let () #,@body) acc)))
+                      acc))))))
+
+         (define-syntax for*/product
+           (lambda (stx)
+             (syntax-case stx ()
+               ((_ rest ...)
+                (let-values ([(decls body) (extract-for* #'(rest ...))])
+                  #`(let ((acc 1))
+                      (for* #,@decls
+                        (set! acc (* (let () #,@body) acc)))
+                      acc))))))
+         
+         (define-syntax for*/max
+           (syntax-rules ()
+             [(_ rest ...) (apply max (for*/list rest ...))]))
+         (define-syntax for*/min
+           (syntax-rules ()
+             [(_ rest ...) (apply min (for*/list rest ...))]))
+
+         (define-syntax for*/and
+           (lambda (stx)
+             (syntax-case stx ()
+               ((_ rest ...)
+                (let-values ([(decls body) (extract-for* #'(rest ...))])
+                  #`(call/cc (lambda (break)
+                               (for* #,@decls
+                                 (unless (let () #,@body)
+                                   (break #f)))
+                               #t)))))))
+
+         (define-syntax for*/or
+           (lambda (stx)
+             (syntax-case stx ()
+               ((_ rest ...)
+                (let-values ([(decls body) (extract-for* #'(rest ...))])
+                  #`(call/cc (lambda (break)
+                               (for* #,@decls
+                                 (when (let () #,@body)
+                                   (break #t)))
+                               #f)))))))
+         (define (remove-r x)
+           (define strlen (string-length x))
+           (define c (string-ref x strlen))
+           (if (char=? c #\return)
+               (substring x 0 (- strlen 1))
+               x))
          )
 
 (import (core loop) (core data))
