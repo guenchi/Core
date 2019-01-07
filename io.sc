@@ -1,7 +1,7 @@
 (library (core io)
          (export file->string file-append port->string
                  read-line)
-         (import (chezscheme))
+         (import (chezscheme) (core string))
          (define (file->string fname)
            (port->string (open-input-file fname))
            )
@@ -37,6 +37,17 @@
                    (reverse (remove-r acc))
                    (loop (cons c acc))))))
 
+         (define (remove-r x)
+           (define strlen (string-length x))
+           (define c (string-ref x strlen))
+           (if (char=? c #\return)
+               (substring x 0 (- strlen 1))
+               x))
+
+         (define (file->lines f)
+           (define str (file->string f))
+           (map remove-r (split str #\newline)))
+         
          )
 
 
