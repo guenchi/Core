@@ -3,7 +3,7 @@
          (export define-config define-config-table)
          (import (chezscheme))
 
-         ;;(define-config package.sc '())
+         
          (define-syntax define-config
            (lambda (stx)
              (syntax-case stx ()
@@ -65,7 +65,7 @@
                                 (read p)))
                             '()))
                       (define tmps
-                        (let ([quer (assq 'var readed-table)])
+                        (let ([quer (assoc 'var readed-table)])
                           (if quer
                               (box (cdr quer))
                               (box default-value)))) ...
@@ -80,7 +80,7 @@
                                                                                    (cons 'var (unbox tmps))
                                                                                    (filter
                                                                                     (lambda (x)
-                                                                                      (not (eq? (car x) 'var)))
+                                                                                      (not (equal? (car x) 'var)))
                                                                                     (list (cons 'var (unbox tmps))
                                                                                           ...))) p))))]))
                                                      ...))])))

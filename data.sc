@@ -2,6 +2,7 @@
 
 (library (core data)
          (export (rename [internal-queue queue]) queue? queue-push queue-pop! queue-push!
+                 queue-map
                  (rename [internal-stream stream]
                          [stream-null!? stream-null?]
                          [internal-stream? stream?])
@@ -47,6 +48,10 @@
 
          (define (queue-empty? q)
            (and (null? (queue-head q)) (null? (queue-tail q))))
+
+         (define (queue-map f q)
+           (make-queue (map f (queue-head q))
+                       (map f (queue-tail q))))
 
 
          ;;;
