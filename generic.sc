@@ -26,46 +26,70 @@
 
 
 (library (core generic)
-         (export set-generic! map-generic first second third fourth
+         (export generic-set! generic-map first second third fourth
                  fifth sixth seventh eigth ninth tenth eleventh twelfth
-                 push
+                 define-accessor generic-set-property
                  )
-         (import (chezscheme) (core syntax) (for (core syntax) expand))
+         (import (chezscheme) (core syntax) (for (core syntax) expand)
+                 (core data))
          (meta define index-identifiers '())
-         (define-syntax set-generic!
+         (define-syntax generic-set-property (syntax-rules ()))
+         (trace-define-syntax define-accessor
            (lambda (stx)
-             (syntax-case stx (car cdr vector-ref list-ref if
-                                   fxvector-ref)
-               [(_ (if condition var1 var2) value)
-                #'(if condition (set-generic! var1 value)
-                      (set-generic! var2 value))]
-               [(_ (fxvector-ref var index) value)
-                #'(fxvector-set! var index value)]
-               [(_ (car var) value)
-                #'(set-car! var value)]
-               [(_ (cdr var) value)
-                #'(set-cdr! var value)]
-               [(_ (vector-ref var index) value)
-                #'(vector-set! var index value)]
-               [(_ (list-ref var index) value)
-                #'(list-set! var index value)]
-               [(_ (maybe-accessor var) value)
-                (assoc/free-identifier=? #'maybe-accessor index-identifiers)
-                (let ([idx
-                       (cdr (assoc/free-identifier=? #'maybe-accessor index-identifiers))])
-                  #`(let ([real-var var])
-                      (cond
-                        [(list? real-var) (list-set! var #,idx value)]
-                        [(vector? var) (vector-set! var #,idx value)]
-                        [else (error 'set-generic! "unknown datatype")])))]
-               [(_ . any-other-forms) #'(set! . any-other-forms)]
-               )))
+             (syntax-case stx ()
+               [(_ (name args ...) body)
+                #'(begin (define (name args ...) body)
+                         (define-property name generic-set-property
+                           (lambda (stx)
+                             (syntax-case stx ()
+                               [(name args ... value) #'(generic-set! body value)]))))])))
+         (define-syntax generic-set!
+           (lambda (stx)
+             (lambda (lookup)
+               (syntax-case stx (car cdr vector-ref list-ref if
+                                     fxvector-ref eq-hashtable-ref string-ref)
+                 [(_ (string-ref s idx) value)
+                  #'(string-set! s idx value)]
+                 [(_ (eq-hashtable-ref table key rest ...) value)
+                  #'(eq-hashtable-set! table key value)]
+                 [(_ (if condition var1 var2) value)
+                  #'(if condition (set-generic! var1 value)
+                        (set-generic! var2 value))]
+                 [(_ (fxvector-ref var index) value)
+                  #'(fxvector-set! var index value)]
+                 [(_ (car var) value)
+                  #'(set-car! var value)]
+                 [(_ (cdr var) value)
+                  #'(set-cdr! var value)]
+                 [(_ (vector-ref var index) value)
+                  #'(vector-set! var index value)]
+                 [(_ (list-ref var index) value)
+                  #'(list-set! var index value)]
+                 [(_ (maybe-accessor var) value)
+                  (assoc/free-identifier=? #'maybe-accessor index-identifiers)
+                  (let ([idx
+                         (cdr (assoc/free-identifier=? #'maybe-accessor index-identifiers))])
+                    #`(let ([real-var var])
+                        (cond
+                          [(list? real-var) (list-set! var #,idx value)]
+                          [(vector? var) (vector-set! var #,idx value)]
+                          [(fxvector? var) (fxvector-set! var #,idx value)]
+                          [else (error 'set-generic! "unknown datatype")])))]
+                 [(_ (maybe-accessor args ...) value)
+                  (lookup #'maybe-accessor #'generic-set-property)
+                  ((lookup #'maybe-accessor #'generic-set-property)
+                   #'(maybe-accessor args ... value))]
+                 [(_ . any-other-forms) #'(set! . any-other-forms)]
+                 ))))
 
 
-         (define (map-generic f list-or-vector)
+
+         (define (generic-map f list-or-vector)
            (cond
              [(list? list-or-vector) (map f list-or-vector)]
              [(vector? list-or-vector) (vector-map f list-or-vector)]
+             [(stream? list-or-vector) (stream-map f list-or-vector)]
+             [(queue? list-or-vector) (queue-map f list-or-vector)]
              [else (error 'map-generic "unknown datatype")]))
 
          (define (list-set! var index value)
@@ -82,6 +106,8 @@
                            (cond
                              [(list? x) (list-ref x index)]
                              [(vector? x) (vector-ref x index)]
+                             [(fxvector? x) (fxvector-ref x index)]
+                             [(stream? x) (stream-ref x index)]
                              [else (error 'fourth "unknown datatype")])))])))
          (make-index-identifier 0 first)
          (make-index-identifier 1 second)
@@ -96,23 +122,8 @@
          (make-index-identifier 10 eleventh)
          (make-index-identifier 11 twelfth)
 
-         (define (push container value)
-           (cond
-             [(list? container) (cons value container)]
-             [(vector? container) (let* ([l (vector-length container)]
-                                         [new (make-vector (+ l 1))])
-                                    (vector-set! new 0 value)
-                                    (let loop ([s 1])
-                                      (if (>= s (+ l 1))
-                                          (void)
-                                          (begin (vector-set! new s (vector-ref container (- s 1)))
-                                                 (loop (+ s 1)))))
-                                    new)]
-             [else (error 'push "unknown datatype")]
-             ))
-         
+         ;;;;;;;;;;;;;;;;
          )
-
 (import (core generic))
 
 
