@@ -37,7 +37,7 @@
           string-replace
           )
          (import
-          (scheme))
+          (chezscheme))
 
 
          (define split

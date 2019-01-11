@@ -2,7 +2,7 @@
     (export
         try catch)
     (import
-        (scheme))
+        (chezscheme))
 
 (define-syntax catch (syntax-rules ()))
 

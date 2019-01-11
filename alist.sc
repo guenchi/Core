@@ -44,7 +44,7 @@
         alist->vector
         vector->alist)
     (import
-        (scheme))
+        (chezscheme))
 
 
     (define ref

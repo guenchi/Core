@@ -14,7 +14,7 @@
           not/equal?
           )
          (import
-          (scheme)
+          (chezscheme)
           (only (core syntax) define-syntax-rule)
           )
 
