@@ -79,15 +79,30 @@
                             (apply *cont* (cdr cmd))))))))))
 
 
-                            
-(define (coroutine-run c . args)
-  (apply c (cons 'run args)))
 
-(define (coroutine-dead? c)
-  (eq? (c 'status) 'dead))
-(define (coroutine-running? c)
-  (eq? (c 'status) 'running))
-(define (coroutine-status c)
-  (c 'status))
+  (define coroutine-run 
+    (lambda (c . args)
+      (apply c (cons 'run args))))
+
+
+
+  (define coroutine-dead?
+    (lambda (c)
+      (eq? (c 'status) 'dead)))
+
+
+
+  (define coroutine-running? 
+    (lambda (c)
+      (eq? (c 'status) 'running)))
+
+
+
+  (define coroutine-status 
+    (lambda (c)
+      (c 'status)))
+
+
+    
 )
 
